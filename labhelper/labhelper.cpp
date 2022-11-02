@@ -67,6 +67,8 @@ SDL_Window* init_window_SDL(std::string caption, int width, int height)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+	// Needed for macOS.
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 #if HDR_FRAMEBUFFER
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 16);
@@ -876,7 +878,7 @@ float randf()
 
 ///////////////////////////////////////////////////////////////////////////
 // Generate uniform points on a disc
-// We use Shirley’s square-to-circle mapping to convert the 2 randf samples to
+// We use Shirleyï¿½s square-to-circle mapping to convert the 2 randf samples to
 // the disk.
 // https://www.pbr-book.org/3ed-2018/Monte_Carlo_Integration/2D_Sampling_with_Multidimensional_Transformations#SamplingaUnitDisk
 // This approach is not really necessary in our case, since we use a prng to
