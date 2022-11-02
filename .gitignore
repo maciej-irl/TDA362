@@ -9,3 +9,6 @@ build/
 /.vs
 
 *.blend1
+
+# macOS Finder junk
+.DS_Store
