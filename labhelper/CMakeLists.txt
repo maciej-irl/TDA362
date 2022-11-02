@@ -51,6 +51,8 @@ target_link_libraries ( ${PROJECT_NAME}
     PUBLIC
     imgui
     ${SDL2_LIBRARIES}
-    ${GLEW_LIBRARIES}
+    # For some reason GLEW_LIBRARIES can sometimes be empty.
+    # See https://discourse.cmake.org/t/the-findglew-cmake-module-does-not-set-glew-libraries-in-some-cases/989/8
+    GLEW::glew
     ${OPENGL_LIBRARY}
     )
