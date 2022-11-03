@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // The window we'll be rendering to
-extern SDL_Window* g_window = nullptr;
+SDL_Window* g_window = nullptr;
 
 float g_clearColor[3] = { 0.2f, 0.2f, 0.8f };
 
@@ -115,7 +115,6 @@ void initialize()
 	// Task 4: Add two new triangles. First by creating another vertex array
 	//		   object, and then by adding a triangle to an existing VAO.
 	//////////////////////////////////////////////////////////////////////////////
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -283,7 +282,7 @@ int main(int argc, char* argv[])
 		// Task 1: Uncomment the call to gui below to show the GUI
 		///////////////////////////////////////////////////////////////////////////
 		// Then render overlay GUI.
-		// gui();
+		gui();
 
 		// Render the GUI.
 		ImGui::Render();
