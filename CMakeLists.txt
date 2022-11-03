@@ -7,6 +7,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FOR
 
 if(UNIX)
     set(OpenGL_GL_PREFERENCE "GLVND")
+    set(CMAKE_CXX_FLAGS "-Wall -Wno-unused-variable")
 endif(UNIX)
 
 # For windows we use our bundled binaries.
@@ -49,5 +50,5 @@ add_subdirectory ( lab3-camera )
 add_subdirectory ( lab4-shading )
 add_subdirectory ( lab5-rendertotexture )
 add_subdirectory ( lab6-shadowmaps )
-add_subdirectory ( pathtracer )
+# add_subdirectory ( pathtracer )
 add_subdirectory ( project )
