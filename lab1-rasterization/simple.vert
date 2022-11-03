@@ -1,5 +1,7 @@
 #version 410
 
+uniform vec3 triangleColor = vec3(1, 1, 1);
+
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec3 in_color;
 
@@ -11,5 +13,5 @@ void main()
 	gl_Position = vec4(in_position, 1.0);
 
 	// Task 3: Set the color variable to the vertex color
-	color = in_color;
+	color = in_color * triangleColor;
 }

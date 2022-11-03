@@ -57,12 +57,18 @@ void initialize()
 	// Define the positions for each of the three vertices of the triangle
 	const float positions[] = {
 		//	 X      Y     Z
-		0.0f,  0.5f,  1.0f, // v0
+		// Triangle one
+		0.0f, 0.5f, 1.0f,   // v0
 		-0.5f, -0.5f, 1.0f, // v1
-		0.5f,  -0.5f, 1.0f, // v2
-		-0.9f, 0.3f,  1.0f, // v2
-		0.0f,  0.55f, 1.0f, // v1
-		-0.9f, 0.9f,  1.0f  // v0
+		0.5f, -0.5f, 1.0f,  // v2
+		// Triangle three
+		-0.9f, 0.3f, 1.0f, // v0
+		0.0f, 0.55f, 1.0f, // v1
+		-0.9f, 0.9f, 1.0f, // v2
+		// Triangle two
+		0.9f, 0.9f, 1.0f, // v0
+		0.0f, 0.6f, 1.0f, // v1
+		0.9f, 0.3f, 1.0f  // v2
 	};
 	// Create a handle for the position vertex buffer object
 	// See OpenGL Spec �2.9 Buffer Objects
@@ -83,9 +89,15 @@ void initialize()
 	// Define the colors for each of the three vertices of the triangle
 	const float colors[] = {
 		//   R     G     B
+		// Triangle one
+		1.0f, 1.0f, 1.0f, // White
+		1.0f, 1.0f, 1.0f, // White
+		1.0f, 1.0f, 1.0f, // White
+		// Triangle three
 		1.0f, 0.0f, 0.0f, // Red
 		0.0f, 1.0f, 0.0f, // Green
 		0.0f, 0.0f, 1.0f, // Blue
+		// Triangle two
 		1.0f, 0.0f, 0.0f, // Red
 		1.0f, 1.0f, 0.0f, // Yellow
 		1.0f, 0.0f, 1.0f  // Purple
@@ -124,32 +136,18 @@ void initialize()
 	//		   object, and then by adding a triangle to an existing VAO.
 	//////////////////////////////////////////////////////////////////////////////
 
-	const float positionsTriangleTwo[] = {
-		//	 X      Y     Z
-		0.9f, 0.9f, 1.0f, // v0
-		0.0f, 0.6f, 1.0f, // v1
-		0.9f, 0.3f, 1.0f  // v2
-	};
-
-	// Create a new buffer for the second triangle's position.
-	GLuint positionBufferTriangleTwo;
-	glGenBuffers(1, &positionBufferTriangleTwo);
-	glBindBuffer(GL_ARRAY_BUFFER, positionBufferTriangleTwo);
-	glBufferData(GL_ARRAY_BUFFER, labhelper::array_length(positionsTriangleTwo) * sizeof(float),
-	             positionsTriangleTwo, GL_STATIC_DRAW);
-	CHECK_GL_ERROR();
-
 	// Bind the position array to the VAO.
 	glGenVertexArrays(1, &vertexArrayObjectTriangleTwo);
 	glBindVertexArray(vertexArrayObjectTriangleTwo);
-	glBindBuffer(GL_ARRAY_BUFFER, positionBufferTriangleTwo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0); // 3 because triangle.
+	glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, (void*)(sizeof(float) * 18)); // 3 because triangle.
 	glEnableVertexAttribArray(0);
 	CHECK_GL_ERROR();
 
 	// Bind the colors array to the VAO.
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0); // 3 because RGB.
+	// Offset by three so we don't use the white one.
+	glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, (void*)(sizeof(float) * 18)); // 3 because RGB.
 	glEnableVertexAttribArray(1);
 	CHECK_GL_ERROR();
 
@@ -251,22 +249,23 @@ void display(void)
 	glUseProgram(shaderProgram); // Set the shader program to use for this draw call
 
 	// Task 5: Set the `triangleColor` uniform in the shader to `g_triangleColor`
+	labhelper::setUniformSlow(shaderProgram, "triangleColor", g_triangleColor);
 
 	// Bind the vertex array object that contains all the vertex data.
 	glBindVertexArray(vertexArrayObject);
 	// Submit triangles from currently bound vertex array object.
 	glDrawArrays(GL_TRIANGLES, 0, 3); // Render 1 triangle
 
+	// Task 5: Set the `triangleColor` uniform to white
+	labhelper::setUniformSlow(shaderProgram, "triangleColor", glm::vec3(1, 1, 1));
+
 	// Task 4: Render the third triangle.
-	// Do this in two calls for fun.
 	glDrawArrays(GL_TRIANGLES, 3, 3); // Render another trianle.
 
-	// Task 4: Render the second VAO
+	// Task 4: Render the second triangle.
 	glBindVertexArray(vertexArrayObjectTriangleTwo);
 	glDrawArrays(GL_TRIANGLES, 0, 3); // 1 triangle (3 vertices)
 	CHECK_GL_ERROR();
-
-	// Task 5: Set the `triangleColor` uniform to white
 
 	glUseProgram(0); // "unsets" the current shader program. Not really necessary.
 }
@@ -281,6 +280,7 @@ void gui()
 	ImGui::ColorEdit3("clear color", g_clearColor);
 
 	// Task 5: Add a new ColorEdit3 control to modify the g_triangleColor variable
+	ImGui::ColorEdit3("triangle color", &g_triangleColor.x);
 
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
