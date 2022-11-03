@@ -3,10 +3,11 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <iterator>
 #include <cstdlib>
+
 #include <SDL.h>
 #include <labhelper.h>
-
 
 #include <imgui.h>
 #include <imgui_impl_sdl_gl3.h>
@@ -31,6 +32,7 @@ glm::vec3 g_triangleColor = { 1, 1, 1 };
 // consists of positions (from positionBuffer) and color (from colorBuffer)
 // in this example.
 GLuint vertexArrayObject;
+GLuint vertexArrayObjectTriangleTwo;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Shader programs
@@ -57,7 +59,10 @@ void initialize()
 		//	 X      Y     Z
 		0.0f,  0.5f,  1.0f, // v0
 		-0.5f, -0.5f, 1.0f, // v1
-		0.5f,  -0.5f, 1.0f  // v2
+		0.5f,  -0.5f, 1.0f, // v2
+		-0.9f, 0.3f,  1.0f, // v2
+		0.0f,  0.55f, 1.0f, // v1
+		-0.9f, 0.9f,  1.0f  // v0
 	};
 	// Create a handle for the position vertex buffer object
 	// See OpenGL Spec �2.9 Buffer Objects
@@ -78,9 +83,12 @@ void initialize()
 	// Define the colors for each of the three vertices of the triangle
 	const float colors[] = {
 		//   R     G     B
-		1.0f, 0.0f, 0.0f, // White
-		0.0f, 1.0f, 0.0f, // White
-		0.0f, 0.0f, 1.0f  // White
+		1.0f, 0.0f, 0.0f, // Red
+		0.0f, 1.0f, 0.0f, // Green
+		0.0f, 0.0f, 1.0f, // Blue
+		1.0f, 0.0f, 0.0f, // Red
+		1.0f, 1.0f, 0.0f, // Yellow
+		1.0f, 0.0f, 1.0f  // Purple
 	};
 	// Create a handle for the vertex color buffer
 	GLuint colorBuffer;
@@ -116,6 +124,34 @@ void initialize()
 	//		   object, and then by adding a triangle to an existing VAO.
 	//////////////////////////////////////////////////////////////////////////////
 
+	const float positionsTriangleTwo[] = {
+		//	 X      Y     Z
+		0.9f, 0.9f, 1.0f, // v0
+		0.0f, 0.6f, 1.0f, // v1
+		0.9f, 0.3f, 1.0f  // v2
+	};
+
+	// Create a new buffer for the second triangle's position.
+	GLuint positionBufferTriangleTwo;
+	glGenBuffers(1, &positionBufferTriangleTwo);
+	glBindBuffer(GL_ARRAY_BUFFER, positionBufferTriangleTwo);
+	glBufferData(GL_ARRAY_BUFFER, labhelper::array_length(positionsTriangleTwo) * sizeof(float),
+	             positionsTriangleTwo, GL_STATIC_DRAW);
+	CHECK_GL_ERROR();
+
+	// Bind the position array to the VAO.
+	glGenVertexArrays(1, &vertexArrayObjectTriangleTwo);
+	glBindVertexArray(vertexArrayObjectTriangleTwo);
+	glBindBuffer(GL_ARRAY_BUFFER, positionBufferTriangleTwo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0); // 3 because triangle.
+	glEnableVertexAttribArray(0);
+	CHECK_GL_ERROR();
+
+	// Bind the colors array to the VAO.
+	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+	glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0); // 3 because RGB.
+	glEnableVertexAttribArray(1);
+	CHECK_GL_ERROR();
 
 	///////////////////////////////////////////////////////////////////////////
 	// Create shaders
@@ -205,6 +241,7 @@ void display(void)
 	glClearColor(g_clearColor[0], g_clearColor[1], g_clearColor[2], 1.0); // Set clear color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clears the color buffer and the z-buffer
 	    // Instead of glClear(GL_BUFFER) the call should be glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+	CHECK_GL_ERROR();
 
 	// We disable backface culling for this tutorial, otherwise care must be taken with the winding order
 	// of the vertices. It is however a lot faster to enable culling when drawing large scenes.
@@ -219,10 +256,16 @@ void display(void)
 	glBindVertexArray(vertexArrayObject);
 	// Submit triangles from currently bound vertex array object.
 	glDrawArrays(GL_TRIANGLES, 0, 3); // Render 1 triangle
-	CHECK_GL_ERROR();
 
+	// Task 4: Render the third triangle.
+	// Do this in two calls for fun.
+	glDrawArrays(GL_TRIANGLES, 3, 3); // Render another trianle.
 
 	// Task 4: Render the second VAO
+	glBindVertexArray(vertexArrayObjectTriangleTwo);
+	glDrawArrays(GL_TRIANGLES, 0, 3); // 1 triangle (3 vertices)
+	CHECK_GL_ERROR();
+
 	// Task 5: Set the `triangleColor` uniform to white
 
 	glUseProgram(0); // "unsets" the current shader program. Not really necessary.
