@@ -46,8 +46,6 @@ GLuint shaderProgram;
 GLuint positionBuffer, colorBuffer, indexBuffer, vertexArrayObject;
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 /// This function is called once at the start of the program and never again
 ///////////////////////////////////////////////////////////////////////////////
@@ -194,7 +192,6 @@ void gui()
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
 	// ----------------------------------------------------------
-
 }
 
 int main(int argc, char* argv[])
