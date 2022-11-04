@@ -90,10 +90,10 @@ void initialize()
 	//			Enable the vertex attrib array.
 	///////////////////////////////////////////////////////////////////////////
 	float texcoords[] = {
-		0.0f, 0.0f, // (u,v) for v0
-		0.0f, 1.0f, // (u,v) for v1
-		1.0f, 1.0f, // (u,v) for v2
-		1.0f, 0.0f  // (u,v) for v3
+		0.0f, 0.0f,  // (u,v) for v0
+		0.0f, 15.0f, // (u,v) for v1
+		1.0f, 15.0f, // (u,v) for v2
+		1.0f, 0.0f   // (u,v) for v3
 	};
 	GLuint texCoordsBuffer;
 	glGenBuffers(1, &texCoordsBuffer);
@@ -139,8 +139,8 @@ void initialize()
 
 	// Configure the texture.
 	// Texture wrapping behaviour.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// Texture filtering - Tutorial says these always need to be set, but th docs
 	// seem to point to well defined initial values.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
