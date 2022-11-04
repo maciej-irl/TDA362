@@ -44,6 +44,7 @@ GLuint shaderProgram;
 // The vertexArrayObject here will hold the pointers to
 // the vertex data (in positionBuffer) and color data per vertex (in colorBuffer)
 GLuint positionBuffer, colorBuffer, indexBuffer, vertexArrayObject;
+GLuint texture0;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -126,6 +127,24 @@ void initialize()
 	//			Load Texture
 	//************************************
 	// Task 2
+	// Load the texture.
+	int w, h, comp;
+	unsigned char* image = stbi_load("../scenes/textures/asphalt.jpg", &w, &h, &comp, STBI_rgb_alpha);
+
+	// Allocate an OpenGL texture.
+	glGenTextures(1, &texture0);
+	glBindTexture(GL_TEXTURE_2D, texture0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	free(image);
+
+	// Configure the texture.
+	// Texture wrapping behaviour.
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	// Texture filtering - Tutorial says these always need to be set, but th docs
+	// seem to point to well defined initial values.
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 
@@ -168,6 +187,8 @@ void display(void)
 	glUniform3f(loc, camera_pan, 10, 0);
 
 	// Task 3.1
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture0);
 
 	glBindVertexArray(vertexArrayObject);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
