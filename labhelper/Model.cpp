@@ -502,6 +502,7 @@ void render(const Model* model, const bool submitMaterials)
 			{
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, material.m_color_texture.gl_id);
+				setUniformSlow(current_program, "color_texture", 0);
 			}
 			// Actually unused in the labs
 			/*
@@ -525,6 +526,7 @@ void render(const Model* model, const bool submitMaterials)
 			{
 				glActiveTexture(GL_TEXTURE5);
 				glBindTexture(GL_TEXTURE_2D, material.m_emission_texture.gl_id);
+				setUniformSlow(current_program, "emission_texture", 5);
 			}
 			glActiveTexture(GL_TEXTURE0);
 
