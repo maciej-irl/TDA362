@@ -42,18 +42,21 @@ GLuint shaderProgram;
 ///////////////////////////////////////////////////////////////////////////////
 
 GLuint vaoRoad, textureRoad;
+GLuint vaoExplosion, textureExplosion;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This function is called once at the start of the program and never again
 ///////////////////////////////////////////////////////////////////////////////
 void initRoadVAO();
+void initExplosionVAO();
 void initialize()
 {
 	ENSURE_INITIALIZE_ONLY_ONCE();
 
 	// Init the first VAO - The road.
 	initRoadVAO();
+	initExplosionVAO();
 
 	// The loadShaderProgram and linkShaderProgam functions are defined in glutil.cpp and
 	// do exactly what we did in lab1 but are hidden for convenience
@@ -128,6 +131,67 @@ void initRoadVAO()
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
+void initExplosionVAO()
+{
+	glGenVertexArrays(1, &vaoExplosion);
+	glBindVertexArray(vaoExplosion);
+
+	// Verticies.
+	const float vertexPos[] = {
+		// X   Y       Z
+		1.0f,  0.0f,  -20.0f, // lower left
+		11.0f, 0.0f,  -20.0f, // lower right
+		1.0f,  10.0f, -20.0f, // upper left
+		11.0f, 10.0f, -20.0f  // upper right
+	};
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, labhelper::array_length(vertexPos) * sizeof(float), vertexPos,
+	             GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, nullptr);
+	glEnableVertexAttribArray(0);
+	CHECK_GL_ERROR();
+
+	// Texture.
+	float texcoords[] = {
+		0.0f, 0.0f, // lower left
+		0.0f, 1.0f, // lower right
+		1.0f, 0.0f, // upper left
+		1.0f, 1.0f  // upper right
+	};
+	GLuint texCoordsBuffer;
+	glGenBuffers(1, &texCoordsBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, texCoordsBuffer);
+	glBufferData(GL_ARRAY_BUFFER, labhelper::array_length(texcoords) * sizeof(float), texcoords,
+	             GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, nullptr);
+	glEnableVertexAttribArray(1);
+	CHECK_GL_ERROR();
+
+	// Indices.
+	const int indices[] = {
+		0, 1, 2, // Triangle 1
+		1, 2, 3  // Triangle 2
+	};
+	GLuint indexBuffer;
+	glGenBuffers(1, &indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, labhelper::array_length(indices) * sizeof(float), indices,
+	             GL_STATIC_DRAW);
+	CHECK_GL_ERROR();
+
+	// Load texture.
+	int w, h, comp;
+	unsigned char* image = stbi_load("../scenes/textures/explosion.png", &w, &h, &comp, STBI_rgb_alpha);
+	glGenTextures(1, &textureExplosion);
+	glBindTexture(GL_TEXTURE_2D, textureExplosion);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	free(image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	CHECK_GL_ERROR();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This function will be called once per frame, so the code to set up
@@ -176,7 +240,17 @@ void display(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mini);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
+	// Draw the road.
 	glBindVertexArray(vaoRoad);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	// Configure blending.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Draw the explosion.
+	glBindVertexArray(vaoExplosion);
+	glBindTexture(GL_TEXTURE_2D, textureExplosion);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glUseProgram(0); // "unsets" the current shader program. Not really necessary.
