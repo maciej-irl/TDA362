@@ -105,8 +105,8 @@ void initRoadVAO()
 	glEnableVertexAttribArray(1);
 
 	const int indices[] = {
-		0, 1, 3, // Triangle 1
-		1, 2, 3  // Triangle 2
+		0, 3, 1, // Triangle 1
+		1, 3, 2  // Triangle 2
 	};
 	GLuint indexBuffer;
 	glGenBuffers(1, &indexBuffer);
@@ -172,7 +172,7 @@ void initExplosionVAO()
 	// Indices.
 	const int indices[] = {
 		0, 1, 2, // Triangle 1
-		1, 2, 3  // Triangle 2
+		1, 3, 2  // Triangle 2
 	};
 	GLuint indexBuffer;
 	glGenBuffers(1, &indexBuffer);
@@ -212,7 +212,7 @@ void display(void)
 
 	// We disable backface culling for this tutorial, otherwise care must be taken with the winding order
 	// of the vertices. It is however a lot faster to enable culling when drawing large scenes.
-	glDisable(GL_CULL_FACE); //glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	// Disable depth testing
 	glDisable(GL_DEPTH_TEST);
 	// Set the shader program to use for this draw call
