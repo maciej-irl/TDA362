@@ -41,30 +41,34 @@ GLuint shaderProgram;
 // Scene objects
 ///////////////////////////////////////////////////////////////////////////////
 
-// The vertexArrayObject here will hold the pointers to
-// the vertex data (in positionBuffer) and color data per vertex (in colorBuffer)
-GLuint positionBuffer, colorBuffer, indexBuffer, vertexArrayObject;
-GLuint texture0;
+GLuint vaoRoad, textureRoad;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This function is called once at the start of the program and never again
 ///////////////////////////////////////////////////////////////////////////////
+void initRoadVAO();
 void initialize()
 {
 	ENSURE_INITIALIZE_ONLY_ONCE();
 
-	///////////////////////////////////////////////////////////////////////////
-	// Create the vertex array object
-	///////////////////////////////////////////////////////////////////////////
-	// Create a handle for the vertex array object
-	glGenVertexArrays(1, &vertexArrayObject);
-	// Set it as current, i.e., related calls will affect this object
-	glBindVertexArray(vertexArrayObject);
+	// Init the first VAO - The road.
+	initRoadVAO();
 
-	///////////////////////////////////////////////////////////////////////////
-	// Create the positions buffer object
-	///////////////////////////////////////////////////////////////////////////
+	// The loadShaderProgram and linkShaderProgam functions are defined in glutil.cpp and
+	// do exactly what we did in lab1 but are hidden for convenience
+	shaderProgram = labhelper::loadShaderProgram("../lab2-textures/simple.vert",
+	                                             "../lab2-textures/simple.frag");
+}
+
+void initRoadVAO()
+{
+	// Create a handle for the vertex array object
+	glGenVertexArrays(1, &vaoRoad);
+	// Set it as current, i.e., related calls will affect this object
+	glBindVertexArray(vaoRoad);
+
+	GLuint positionBuffer;
 	const float positions[] = {
 		// X      Y       Z
 		-10.0f, 0.0f, -10.0f,  // v0
@@ -83,12 +87,6 @@ void initialize()
 	// Enable the attribute
 	glEnableVertexAttribArray(0);
 
-	///////////////////////////////////////////////////////////////////////////
-	// Task 1 : Create the texture coordinates.
-	//			Create the texture coordinates' buffer object.
-	//			Set up the attrib pointer.
-	//			Enable the vertex attrib array.
-	///////////////////////////////////////////////////////////////////////////
 	float texcoords[] = {
 		0.0f, 0.0f,  // (u,v) for v0
 		0.0f, 15.0f, // (u,v) for v1
@@ -103,37 +101,23 @@ void initialize()
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, nullptr);
 	glEnableVertexAttribArray(1);
 
-	///////////////////////////////////////////////////////////////////////////
-	// Create the element array buffer object
-	///////////////////////////////////////////////////////////////////////////
 	const int indices[] = {
 		0, 1, 3, // Triangle 1
 		1, 2, 3  // Triangle 2
 	};
+	GLuint indexBuffer;
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, labhelper::array_length(indices) * sizeof(float), indices,
 	             GL_STATIC_DRAW);
 
-
-	// The loadShaderProgram and linkShaderProgam functions are defined in glutil.cpp and
-	// do exactly what we did in lab1 but are hidden for convenience
-	shaderProgram = labhelper::loadShaderProgram("../lab2-textures/simple.vert",
-	                                             "../lab2-textures/simple.frag");
-
-	//**********************************************
-
-	//************************************
-	//			Load Texture
-	//************************************
-	// Task 2
 	// Load the texture.
 	int w, h, comp;
 	unsigned char* image = stbi_load("../scenes/textures/asphalt.jpg", &w, &h, &comp, STBI_rgb_alpha);
 
 	// Allocate an OpenGL texture.
-	glGenTextures(1, &texture0);
-	glBindTexture(GL_TEXTURE_2D, texture0);
+	glGenTextures(1, &textureRoad);
+	glBindTexture(GL_TEXTURE_2D, textureRoad);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 	free(image);
 
@@ -183,18 +167,17 @@ void display(void)
 	loc = glGetUniformLocation(shaderProgram, "cameraPosition");
 	glUniform3f(loc, camera_pan, 10, 0);
 
-	// Task 3.1
+	// Bind the road texture so we may change its parameters. Interstingly, the
+	// tutorial says these always need to be set, but the docs seem to point to
+	// well defined initial values.
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture0);
-	// Texture filtering - Tutorial says these always need to be set, but the docs
-	// seem to point to well defined initial values.
+	glBindTexture(GL_TEXTURE_2D, textureRoad);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mini);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
 
-	glBindVertexArray(vertexArrayObject);
+	glBindVertexArray(vaoRoad);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 
 	glUseProgram(0); // "unsets" the current shader program. Not really necessary.
 }
