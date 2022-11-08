@@ -250,7 +250,11 @@ bool handleEvents(void)
 
 	// implement controls based on key states
 	const float speed = 10.f;
-	vec3 car_forward = vec3(0, 0, 1);
+	const float rotateSpeed = 2.f;
+
+	// Rotate what "forward" is by the current rotation vector.
+	vec3 car_forward(R * vec4(0, 0, 1, 1));
+
 	if(state[SDL_SCANCODE_UP])
 	{
 		T = translate(car_forward * speed * deltaTime) * T;
@@ -261,13 +265,13 @@ bool handleEvents(void)
 	}
 	if(state[SDL_SCANCODE_LEFT])
 	{
-		T = translate(vec3(1, 0, 0) * speed * deltaTime) * T;
+		R = rotate(rotateSpeed * deltaTime, glm::vec3(0, 1, 0)) * R;
 	}
 	if(state[SDL_SCANCODE_RIGHT])
 	{
-		T = translate(-vec3(1, 0, 0) * speed * deltaTime) * T;
+		R = rotate(-rotateSpeed * deltaTime, glm::vec3(0, 1, 0)) * R;
 	}
-	carModelMatrix = T;
+	carModelMatrix = T * R;
 
 	return quitEvent;
 }
