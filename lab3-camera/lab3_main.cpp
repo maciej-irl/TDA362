@@ -180,6 +180,14 @@ void display()
 	glUniformMatrix4fv(mloc, 1, false, &carModelMatrix[0].x);
 	render(carModel);
 
+	// donut car
+	mat4 donutCarModelMatrix = translate(vec3(20, 0, 0))             // Move to the center of the roundabout
+	                           * rotate(-currentTime, vec3(0, 1, 0)) // Rotate with time
+	                           * translate(vec3(10, 0, 0));          // Translate by roundabout radius
+	modelViewProjectionMatrix = projectionMatrix * viewMatrix * donutCarModelMatrix;
+	glUniformMatrix4fv(mvploc, 1, false, &modelViewProjectionMatrix[0].x);
+	glUniformMatrix4fv(mloc, 1, false, &donutCarModelMatrix[0].x);
+	render(carModel);
 
 	glUseProgram(0);
 }
