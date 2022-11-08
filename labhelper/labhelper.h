@@ -17,15 +17,15 @@
 #define M_PI 3.14159265358979323846f
 #endif
 
-#define ENSURE_INITIALIZE_ONLY_ONCE()                                                                        \
-	do                                                                                                       \
-	{                                                                                                        \
-		static bool initialized = false;                                                                     \
-		if(initialized)                                                                                      \
-		{                                                                                                    \
-			labhelper::fatal_error("initialize must only be called once when the application starts!", "");  \
-		}                                                                                                    \
-		initialized = true;                                                                                  \
+#define ENSURE_INITIALIZE_ONLY_ONCE() \
+	do \
+	{ \
+		static bool initialized = false; \
+		if(initialized) \
+		{ \
+			labhelper::fatal_error("initialize must only be called once when the application starts!", ""); \
+		} \
+		initialized = true; \
 	} while(0)
 
 
@@ -51,9 +51,9 @@
 ///	glClear(GL_COLOR_BUFFER_BIT);
 ///	CHECK_GL_ERROR(); // see if glClear() generated an error
 ///////////////////////////////////////////////////////////////////////////
-#define CHECK_GL_ERROR()                                                                                     \
-	{                                                                                                        \
-		labhelper::checkGLError(__FILE__, __LINE__) && (__debugbreak(), 1);                                  \
+#define CHECK_GL_ERROR() \
+	{ \
+		labhelper::checkGLError(__FILE__, __LINE__) && (__debugbreak(), 1); \
 	}
 
 namespace labhelper
@@ -163,6 +163,8 @@ void setUniformSlow(GLuint shaderProgram, const char* name, const GLuint value);
 void setUniformSlow(GLuint shaderProgram, const char* name, const bool value);
 void setUniformSlow(GLuint shaderProgram, const char* name, const glm::vec3& value);
 void setUniformSlow(GLuint shaderProgram, const char* name, const uint32_t nof_values, const glm::vec3* values);
+// Version for tutorials, where uniforms may be optimised out.
+void setUniformSlowIfValid(GLuint shaderProgram, const char* name, const GLint value);
 
 ///////////////////////////////////////////////////////////////////////////
 /// Draws a single quad (two triangles) that cover the entire screen

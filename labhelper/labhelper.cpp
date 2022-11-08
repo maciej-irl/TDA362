@@ -640,6 +640,14 @@ GLuint createAddIndexBuffer(GLuint vertexArrayObject,
 	return buffer;
 }
 
+void setUniformSlowIfValid(GLuint shaderProgram, const char* name, const GLint value)
+{
+	int loc = glGetUniformLocation(shaderProgram, name);
+	if(loc != -1)
+	{
+		glUniform1i(loc, value);
+	}
+}
 
 void setUniformSlow(GLuint shaderProgram, const char* name, const glm::mat4& matrix)
 {
