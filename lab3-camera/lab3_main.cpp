@@ -281,6 +281,33 @@ bool handleEvents(void)
 	}
 	carModelMatrix = T * R;
 
+	// Implement Minecraft-sytle camera movement.
+	const float cameraSpeed = 0.15f;
+	if(state[SDL_SCANCODE_A])
+	{
+		cameraPosition -= normalize(cross(cameraDirection, worldUp)) * cameraSpeed;
+	}
+	if(state[SDL_SCANCODE_D])
+	{
+		cameraPosition += normalize(cross(cameraDirection, worldUp)) * cameraSpeed;
+	}
+	if(state[SDL_SCANCODE_W])
+	{
+		cameraPosition += cameraDirection * cameraSpeed;
+	}
+	if(state[SDL_SCANCODE_S])
+	{
+		cameraPosition -= cameraDirection * cameraSpeed;
+	}
+	if(state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
+	{
+		cameraPosition += worldUp * cameraSpeed;
+	}
+	if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
+	{
+		cameraPosition -= worldUp * cameraSpeed;
+	}
+
 	return quitEvent;
 }
 
