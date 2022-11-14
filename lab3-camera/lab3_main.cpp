@@ -261,7 +261,7 @@ bool handleEvents(void)
 	const float rotateSpeed = 2.f;
 
 	// Rotate what "forward" is by the current rotation vector.
-	vec3 car_forward(R * vec4(0, 0, 1, 1));
+	vec3 car_forward(R * vec4(0, 0, 1, 0));
 
 	if(state[SDL_SCANCODE_UP])
 	{
