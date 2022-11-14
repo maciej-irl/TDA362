@@ -9,6 +9,8 @@
 #include <signal.h>
 #endif // WIN32
 
+// For macOS to ignore OpenGL depreciation.
+#define GL_SILENCE_DEPRECATION
 #include <GL/glew.h>
 
 // STB_IMAGE for loading images of many filetypes
