@@ -53,7 +53,7 @@ uniform vec3 viewSpaceLightPosition;
 layout(location = 0) out vec4 fragmentColor;
 
 
-vec3 calculateDirectIllumiunation(vec3 wo, vec3 n, vec3 base_color)
+vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 {
 	vec3 direct_illum = base_color;
 	///////////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ void main()
 
 	vec3 direct_illumination_term = vec3(0.0);
 	{ // Direct illumination
-		direct_illumination_term = calculateDirectIllumiunation(wo, n, base_color);
+		direct_illumination_term = calculateDirectIllumination(wo, n, base_color);
 	}
 
 	vec3 indirect_illumination_term = vec3(0.0);
