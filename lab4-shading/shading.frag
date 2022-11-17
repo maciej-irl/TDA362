@@ -61,9 +61,10 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 	//            to the light. If the light is backfacing the triangle,
 	//            return vec3(0);
 	///////////////////////////////////////////////////////////////////////////
-	vec3 wi = reflect(wo, n);
+	vec3 wi = normalize(viewSpaceLightPosition - viewSpacePosition);
+
 	if (dot(wi, n) <= 0.0) {
-		return vec3(0); // Light is facing back of the triangle.
+		return vec3(0.0); // Light is facing back of the triangle.
 	}
 	// Distance between light and current point.
 	float d = distance(viewSpaceLightPosition, viewSpacePosition);
@@ -73,13 +74,24 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 	///////////////////////////////////////////////////////////////////////////
 	// Task 1.3 - Calculate the diffuse term and return that as the result
 	///////////////////////////////////////////////////////////////////////////
-	vec3 diffuse_term = base_color * 1.0 / PI * length(dot(n, wi)) * li;
-	return diffuse_term;
+	vec3 diffuse_term = base_color * 1.0 / PI * abs(dot(n, wi)) * li;
+	// return diffuse_term;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Task 2 - Calculate the Torrance Sparrow BRDF and return the light
 	//          reflected from that instead
 	///////////////////////////////////////////////////////////////////////////
+
+	vec3 wh = normalize(wi + wo);
+	float fresnel_term = material_fresnel + (1.0 - material_fresnel) * pow(1.0 - dot(wh, wi), 5.0);
+	// N.B. Make sure we are not taking a power of a negative by clamping.
+	float microfacet_term = (material_shininess + 2.0) / (2.0 * PI) * pow(max(0.001, dot(n, wh)), material_shininess);
+	float masking_term = min(1.0, min(
+		2.0 * dot(n, wh) * dot(n, wo) / dot(wo, wh),
+		2.0 * dot(n, wh) * dot(n, wi) / dot(wo, wh)
+	));
+	float brdf = fresnel_term * microfacet_term * masking_term / 4.0 / dot(n, wo) / dot(n, wi);
+	return brdf * dot(n, wi) * li; 
 
 	///////////////////////////////////////////////////////////////////////////
 	// Task 3 - Make your shader respect the parameters of our material model.
@@ -112,9 +124,9 @@ void main()
 	//            shall be normalized vectors in view-space.
 	///////////////////////////////////////////////////////////////////////////
 	
-	// This is assuming a vec3(0) camera position.
-	vec3 wo = normalize(viewSpacePosition);
-	vec3 n = viewSpaceNormal;
+	// This is assuming a vec3(0) camera position. So this is `0 - viewSpacePos`.
+	vec3 wo = -normalize(viewSpacePosition);
+	vec3 n = normalize(viewSpaceNormal);
 
 	vec3 base_color = material_color;
 	if(has_color_texture == 1)
