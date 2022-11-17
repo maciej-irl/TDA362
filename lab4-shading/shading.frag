@@ -55,7 +55,6 @@ layout(location = 0) out vec4 fragmentColor;
 
 vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 {
-	vec3 direct_illum = base_color;
 	///////////////////////////////////////////////////////////////////////////
 	// Task 1.2 - Calculate the radiance Li from the light, and the direction
 	//            to the light. If the light is backfacing the triangle,
@@ -91,12 +90,14 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 		2.0 * dot(n, wh) * dot(n, wi) / dot(wo, wh)
 	));
 	float brdf = fresnel_term * microfacet_term * masking_term / 4.0 / dot(n, wo) / dot(n, wi);
-	return brdf * dot(n, wi) * li; 
 
 	///////////////////////////////////////////////////////////////////////////
 	// Task 3 - Make your shader respect the parameters of our material model.
 	///////////////////////////////////////////////////////////////////////////
 
+	vec3 dielectric_term = brdf * dot(n, wi) * li + (1 - fresnel_term) * diffuse_term;
+	vec3 metal_term = brdf * base_color * dot(n, wi) * li;
+	vec3 direct_illum = material_metalness * metal_term + (1 - material_metalness) * dielectric_term;
 	return direct_illum;
 }
 
