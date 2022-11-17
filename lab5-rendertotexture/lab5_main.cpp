@@ -406,9 +406,10 @@ void display()
 	labhelper::setUniformSlow(postFxShader, "frameBufferTexture", 0);
 
 	// 4. Draw a quad over the entire viewport
+	labhelper::setUniformSlow(postFxShader, "time", currentTime);
+	labhelper::setUniformSlow(postFxShader, "currentEffect", currentEffect);
+	labhelper::setUniformSlow(postFxShader, "filterSize", filterSizes[filterSize - 1]);
 	labhelper::drawFullScreenQuad();
-
-	// Task 4: Set the required uniforms
 
 	glUseProgram(0);
 
