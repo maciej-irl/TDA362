@@ -13,7 +13,7 @@ uniform float material_shininess;
 uniform vec3 material_emission;
 
 uniform int has_color_texture;
-uniform sampler2D colorMap;
+uniform sampler2D color_texture;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Environment
@@ -163,7 +163,7 @@ void main()
 	vec3 base_color = material_color;
 	if(has_color_texture == 1)
 	{
-		base_color *= texture(colorMap, texCoord).rgb;
+		base_color *= texture(color_texture, texCoord).rgb;
 	}
 
 	vec3 direct_illumination_term = vec3(0.0);
