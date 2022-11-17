@@ -13,9 +13,9 @@ uniform float material_shininess;
 uniform vec3 material_emission;
 
 uniform int has_color_texture;
-uniform sampler2D colorMap;
+uniform sampler2D color_texture;
 uniform int has_emission_texture;
-uniform sampler2D emissiveMap;
+uniform sampler2D emission_texture;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Environment
@@ -159,7 +159,7 @@ void main()
 	vec3 base_color = material_color;
 	if(has_color_texture == 1)
 	{
-		base_color *= texture(colorMap, texCoord).rgb;
+		base_color *= texture(color_texture, texCoord).rgb;
 	}
 
 	// Direct illumination
@@ -174,8 +174,9 @@ void main()
 	vec3 emission_term = material_emission;
 	if(has_emission_texture == 1)
 	{
-		emission_term *= texture(emissiveMap, texCoord).rgb;
+		emission_term *= texture(emission_texture, texCoord).rgb;
 	}
 
 	fragmentColor.rgb = direct_illumination_term + indirect_illumination_term + emission_term;
+	// fragmentColor.rgb = texture(emission_texture, texCoord).rgb;
 }
