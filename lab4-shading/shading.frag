@@ -74,7 +74,6 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 	// Task 1.3 - Calculate the diffuse term and return that as the result
 	///////////////////////////////////////////////////////////////////////////
 	vec3 diffuse_term = base_color * 1.0 / PI * abs(dot(n, wi)) * li;
-	// return diffuse_term;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Task 2 - Calculate the Torrance Sparrow BRDF and return the light
@@ -103,18 +102,34 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 
 vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 {
-	vec3 indirect_illum = vec3(0.f);
 	///////////////////////////////////////////////////////////////////////////
 	// Task 5 - Lookup the irradiance from the irradiance map and calculate
 	//          the diffuse reflection
 	///////////////////////////////////////////////////////////////////////////
+	vec4 pixel_world_pos = viewInverse * vec4(texCoord * 2.0 - 1.0, 1.0, 1.0);
+	pixel_world_pos = (1.0 / pixel_world_pos.w) * pixel_world_pos;
+
+	// Calculate the world-space direction from the camera to that position
+	vec3 dir = vec3(viewInverse * vec4(n, 0.0));
+
+	// Calculate the spherical coordinates of the direction
+	float theta = acos(max(-1.0f, min(1.0f, dir.y)));
+	float phi = atan(dir.z, dir.x);
+	if (phi < 0.0f) {
+		phi = phi + 2.0f * PI;
+	}
+
+	// Use these to lookup the color in the environment map
+	vec2 lookup = vec2(phi / (2.0 * PI), 1 - theta / PI);
+	vec3 indirect_illum = environment_multiplier * texture(irradianceMap, lookup).xyz;
+	vec3 diffuse_term = base_color * (1.0 / PI) * indirect_illum;
+	return diffuse_term;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Task 6 - Look up in the reflection map from the perfect specular
 	//          direction and calculate the dielectric and metal terms.
 	///////////////////////////////////////////////////////////////////////////
 
-	return indirect_illum;
 }
 
 

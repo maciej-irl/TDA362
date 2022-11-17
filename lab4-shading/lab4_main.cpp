@@ -342,6 +342,7 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// Bind the environment map(s) to unused texture units
 	///////////////////////////////////////////////////////////////////////////
+	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
 	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);

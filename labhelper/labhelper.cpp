@@ -648,6 +648,7 @@ void setUniformSlowIfValid(GLuint shaderProgram, const char* name, const GLint v
 	if(loc != -1)
 	{
 		glUniform1i(loc, value);
+		CHECK_GL_ERROR();
 	}
 }
 
