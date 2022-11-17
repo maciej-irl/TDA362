@@ -252,6 +252,7 @@ void drawScene(const mat4& view, const mat4& projection)
 	labhelper::setUniformSlow(backgroundProgram, "environment_multiplier", environment_multiplier);
 	labhelper::setUniformSlow(backgroundProgram, "inv_PV", inverse(projection * view));
 	labhelper::setUniformSlow(backgroundProgram, "camera_pos", cameraPosition);
+	labhelper::setUniformSlow(backgroundProgram, "environmentMap", 6);
 	labhelper::drawFullScreenQuad();
 
 	glUseProgram(shaderProgram);
