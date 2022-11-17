@@ -61,7 +61,7 @@ vec3 securityCamPos = vec3(70.0f, 50.0f, -70.0f);
 vec3 securityCamDirection = normalize(-securityCamPos);
 vec3 cameraPosition(-70.0f, 50.0f, 70.0f);
 vec3 cameraDirection = normalize(vec3(0.0f, 15.f, 0.f) - cameraPosition);
-float cameraSpeed = 10.f;
+float cameraSpeed = 30.f;
 
 vec3 worldUp(0.0f, 1.0f, 0.0f);
 
