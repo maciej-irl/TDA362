@@ -1,4 +1,4 @@
-#version 420
+#version 410
 
 // required by GLSL spec Sect 4.5.3 (though nvidia does not, amd does)
 precision highp float;
@@ -13,16 +13,16 @@ uniform float material_shininess;
 uniform vec3 material_emission;
 
 uniform int has_color_texture;
-layout(binding = 0) uniform sampler2D colorMap;
+uniform sampler2D colorMap;
 uniform int has_emission_texture;
-layout(binding = 5) uniform sampler2D emissiveMap;
+uniform sampler2D emissiveMap;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Environment
 ///////////////////////////////////////////////////////////////////////////////
-layout(binding = 6) uniform sampler2D environmentMap;
-layout(binding = 7) uniform sampler2D irradianceMap;
-layout(binding = 8) uniform sampler2D reflectionMap;
+uniform sampler2D environmentMap;
+uniform sampler2D irradianceMap;
+uniform sampler2D reflectionMap;
 uniform float environment_multiplier;
 
 ///////////////////////////////////////////////////////////////////////////////

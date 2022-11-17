@@ -1,10 +1,10 @@
-#version 420
+#version 410
 
 // required by GLSL spec Sect 4.5.3 (though nvidia does not, amd does)
 precision highp float;
 
-layout(binding = 0) uniform sampler2D frameBufferTexture;
-layout(binding = 1) uniform sampler2D blurredFrameBufferTexture;
+uniform sampler2D frameBufferTexture;
+uniform sampler2D blurredFrameBufferTexture;
 uniform float time = 0.f;
 uniform int currentEffect = 1; // 1 as default, to know when the framebuffers are properly set
 uniform int filterSize = 1;

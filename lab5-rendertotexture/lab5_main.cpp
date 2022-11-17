@@ -335,10 +335,13 @@ void display()
 	///////////////////////////////////////////////////////////////////////////
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, irradianceMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "irradianceMap", 7);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, reflectionMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "reflectionMap", 8);
 
 	///////////////////////////////////////////////////////////////////////////
 	// draw scene from security camera

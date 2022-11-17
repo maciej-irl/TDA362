@@ -1,9 +1,9 @@
-#version 420
+#version 410
 
 // required by GLSL spec Sect 4.5.3 (though nvidia does not, amd does)
 precision highp float;
 
-layout(binding = 0) uniform sampler2D frameBufferTexture;
+uniform sampler2D frameBufferTexture;
 uniform float time;
 layout(location = 0) out vec4 fragmentColor;
 
