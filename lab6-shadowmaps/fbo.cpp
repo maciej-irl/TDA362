@@ -3,12 +3,12 @@
 #include <labhelper.h>
 
 FboInfo::FboInfo()
-    : isComplete(false)
-    , framebufferId(UINT32_MAX)
+    : framebufferId(UINT32_MAX)
     , colorTextureTarget(UINT32_MAX)
     , depthBuffer(UINT32_MAX)
     , width(0)
-    , height(0){};
+    , height(0)
+    , isComplete(false){};
 
 FboInfo::FboInfo(int w, int h) : FboInfo()
 {
