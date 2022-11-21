@@ -30,6 +30,7 @@ uniform float environment_multiplier;
 ///////////////////////////////////////////////////////////////////////////////
 uniform vec3 point_light_color = vec3(1.0, 1.0, 1.0);
 uniform float point_light_intensity_multiplier = 50.0;
+uniform sampler2D shadowMapTex;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constants
@@ -40,6 +41,7 @@ uniform float point_light_intensity_multiplier = 50.0;
 // Input varyings from vertex shader
 ///////////////////////////////////////////////////////////////////////////////
 in vec2 texCoord;
+in vec4 shadowMapCoord;
 in vec3 viewSpaceNormal;
 in vec3 viewSpacePosition;
 
@@ -126,12 +128,14 @@ vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 
 void main()
 {
-	float visibility = 1.0;
 	float attenuation = 1.0;
-
 
 	vec3 wo = -normalize(viewSpacePosition);
 	vec3 n = normalize(viewSpaceNormal);
+
+	// Shadow map
+	float depth = texture(shadowMapTex, shadowMapCoord.xy / shadowMapCoord.w).x;
+	float visibility = (depth >= (shadowMapCoord.z / shadowMapCoord.w)) ? 1.0 : 0.0;
 
 	vec3 base_color = material_color;
 	if(has_color_texture == 1)

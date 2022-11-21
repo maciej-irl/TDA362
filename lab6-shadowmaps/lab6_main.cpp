@@ -277,6 +277,16 @@ void drawScene(GLuint currentShaderProgram,
 	                          normalize(vec3(viewMatrix * vec4(-lightPosition, 0.0f))));
 	labhelper::setUniformSlow(currentShaderProgram, "spotOuterAngle", std::cos(radians(outerSpotlightAngle)));
 
+	// Shadow map.
+	mat4 lightMatrix = translate(vec3(0.5f))   // Change from [-.5, .5] to [0, 1]
+	                   * scale(vec3(0.5f))     // Change from [-1, 1] to [-.5, .5]
+	                   * lightProjectionMatrix // Light Space to Light Clip Space
+	                   * lightViewMatrix       // World Space to Light Space
+	                   * inverse(viewMatrix);  // View Space to World Space
+	labhelper::setUniformSlow(currentShaderProgram, "lightMatrix", lightMatrix);
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, shadowMapFB.colorTextureTarget);
+	labhelper::setUniformSlow(currentShaderProgram, "shadowMapTex", 0);
 
 	// Environment
 	labhelper::setUniformSlow(currentShaderProgram, "environment_multiplier", environment_multiplier);
