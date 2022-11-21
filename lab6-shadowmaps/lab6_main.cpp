@@ -276,6 +276,9 @@ void drawScene(GLuint currentShaderProgram,
 	labhelper::setUniformSlow(currentShaderProgram, "viewSpaceLightDir",
 	                          normalize(vec3(viewMatrix * vec4(-lightPosition, 0.0f))));
 	labhelper::setUniformSlow(currentShaderProgram, "spotOuterAngle", std::cos(radians(outerSpotlightAngle)));
+	labhelper::setUniformSlow(currentShaderProgram, "spotInnerAngle", std::cos(radians(innerSpotlightAngle)));
+	labhelper::setUniformSlow(currentShaderProgram, "useSpotLight", useSpotLight);
+	labhelper::setUniformSlow(currentShaderProgram, "useSoftFalloff", useSoftFalloff);
 
 	// Shadow map.
 	mat4 lightMatrix = translate(vec3(0.5f))   // Change from [-.5, .5] to [0, 1]

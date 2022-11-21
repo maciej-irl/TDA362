@@ -51,6 +51,12 @@ in vec3 viewSpacePosition;
 uniform mat4 viewInverse;
 uniform vec3 viewSpaceLightPosition;
 
+uniform vec3 viewSpaceLightDir;
+uniform float spotOuterAngle;
+uniform float spotInnerAngle;
+uniform bool useSpotLight;
+uniform bool useSoftFalloff;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Output color
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,6 +142,18 @@ void main()
 	// Shadow map
 	float depth = texture(shadowMapTex, shadowMapCoord.xy / shadowMapCoord.w).x;
 	float visibility = (depth >= (shadowMapCoord.z / shadowMapCoord.w)) ? 1.0 : 0.0;
+	
+	// Spotlight logic
+	if (useSpotLight) {
+		vec3 posToLight = normalize(viewSpaceLightPosition - viewSpacePosition);
+		float cosAngle = dot(posToLight, -viewSpaceLightDir);
+
+		// Spotlight with hard border:
+		float spotAttenuation = useSoftFalloff
+			? smoothstep(spotOuterAngle, spotInnerAngle, cosAngle)
+			: ((cosAngle > spotOuterAngle) ? 1.0 : 0.0);
+		visibility *= spotAttenuation;
+	}
 
 	vec3 base_color = material_color;
 	if(has_color_texture == 1)
