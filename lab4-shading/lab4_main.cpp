@@ -337,7 +337,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	SDL_GetWindowSize(g_window, &windowWidth, &windowHeight);
+	SDL_GL_GetDrawableSize(g_window, &windowWidth, &windowHeight);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Bind the environment map(s) to unused texture units

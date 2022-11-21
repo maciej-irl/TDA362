@@ -324,7 +324,7 @@ void drawScene(GLuint currentShaderProgram,
 void display(void)
 {
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 
 	///////////////////////////////////////////////////////////////////////////
 	// setup matrices

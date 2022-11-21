@@ -85,7 +85,8 @@ SDL_Window* init_window_SDL(std::string caption, int width, int height)
 
 	// Create the window
 	SDL_Window* window = SDL_CreateWindow(caption.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-	                                      width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	                                      width, height,
+	                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	if(window == nullptr)
 	{
@@ -828,7 +829,7 @@ void saveScreenshot()
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 	GLint lwidth, lheight;
-	SDL_GetWindowSize(g_window, &lwidth, &lheight);
+	SDL_GL_GetDrawableSize(g_window, &lwidth, &lheight);
 
 	const int n_channels = 3;
 	img.resize(lwidth * lheight * n_channels);

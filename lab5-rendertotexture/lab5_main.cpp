@@ -245,7 +245,7 @@ void initialize()
 	// Setup Framebuffers
 	///////////////////////////////////////////////////////////////////////////
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 	const int numFbos = 5;
 	for(int i = 0; i < numFbos; i++)
 	{
@@ -325,7 +325,7 @@ void display()
 	// Check if any framebuffer needs to be resized
 	///////////////////////////////////////////////////////////////////////////
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 
 	for(int i = 0; i < fboList.size(); i++)
 	{

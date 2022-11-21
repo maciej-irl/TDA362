@@ -201,7 +201,7 @@ void display(void)
 {
 	// The viewport determines how many pixels we are rasterizing to
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 	// Set viewport
 	glViewport(0, 0, w, h);
 

@@ -116,7 +116,7 @@ void display()
 {
 	// Set up
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 
 	if(pp.w != old_w || pp.h != old_h)
 	{

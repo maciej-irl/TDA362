@@ -233,7 +233,7 @@ void display(void)
 {
 	// The viewport determines how many pixels we are rasterizing to
 	int w, h;
-	SDL_GetWindowSize(g_window, &w, &h);
+	SDL_GL_GetDrawableSize(g_window, &w, &h);
 	glViewport(0, 0, w, h); // Set viewport
 
 	glClearColor(g_clearColor[0], g_clearColor[1], g_clearColor[2], 1.0); // Set clear color
