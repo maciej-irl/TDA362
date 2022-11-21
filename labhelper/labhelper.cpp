@@ -448,7 +448,7 @@ void fatal_error(std::string errorString, std::string title)
 #if defined(_WIN32)
 	MessageBox(0, errorString.c_str(), title.c_str(), MB_OK | MB_ICONEXCLAMATION);
 #else
-	fprintf(stderr, "%s : %s\n", title.c_str(), errorString.c_str());
+	fprintf(stderr, "%s:\n%s\n", title.c_str(), errorString.c_str());
 #endif
 	abort();
 }
@@ -467,7 +467,7 @@ void non_fatal_error(std::string errorString, std::string title)
 #if defined(_WIN32)
 	MessageBox(0, errorString.c_str(), title.c_str(), MB_OK | MB_ICONEXCLAMATION);
 #else
-	fprintf(stderr, "%s : %s\n", title.c_str(), errorString.c_str());
+	fprintf(stderr, "%s:\n%s\n", title.c_str(), errorString.c_str());
 #endif
 }
 
@@ -538,11 +538,11 @@ GLuint loadShaderProgram(const std::string& vertexShader, const std::string& fra
 		std::string err = GetShaderInfoLog(vShader);
 		if(allow_errors)
 		{
-			non_fatal_error(err, "Vertex Shader");
+			non_fatal_error(err, vertexShader);
 		}
 		else
 		{
-			fatal_error(err, "Vertex Shader");
+			fatal_error(err, vertexShader);
 		}
 		return 0;
 	}
@@ -554,11 +554,11 @@ GLuint loadShaderProgram(const std::string& vertexShader, const std::string& fra
 		std::string err = GetShaderInfoLog(fShader);
 		if(allow_errors)
 		{
-			non_fatal_error(err, "Fragment Shader");
+			non_fatal_error(err, fragmentShader);
 		}
 		else
 		{
-			fatal_error(err, "Fragment Shader");
+			fatal_error(err, fragmentShader);
 		}
 		return 0;
 	}
