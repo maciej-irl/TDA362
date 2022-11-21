@@ -252,6 +252,7 @@ void drawBackground(const mat4& viewMatrix, const mat4& projectionMatrix)
 	labhelper::setUniformSlow(backgroundProgram, "environment_multiplier", environment_multiplier);
 	labhelper::setUniformSlow(backgroundProgram, "inv_PV", inverse(projectionMatrix * viewMatrix));
 	labhelper::setUniformSlow(backgroundProgram, "camera_pos", camera.position);
+	labhelper::setUniformSlow(backgroundProgram, "environmentMap", 6);
 	labhelper::drawFullScreenQuad();
 }
 
@@ -275,7 +276,6 @@ void drawScene(GLuint currentShaderProgram,
 	labhelper::setUniformSlow(currentShaderProgram, "viewSpaceLightDir",
 	                          normalize(vec3(viewMatrix * vec4(-lightPosition, 0.0f))));
 	labhelper::setUniformSlow(currentShaderProgram, "spotOuterAngle", std::cos(radians(outerSpotlightAngle)));
-
 
 
 	// Environment
@@ -330,12 +330,16 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// Bind the environment map(s) to unused texture units
 	///////////////////////////////////////////////////////////////////////////
+	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, irradianceMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "irradianceMap", 7);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, reflectionMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "reflectionMap", 8);
 	glActiveTexture(GL_TEXTURE0);
 
 	///////////////////////////////////////////////////////////////////////////
