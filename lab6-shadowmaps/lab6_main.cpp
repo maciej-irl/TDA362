@@ -364,6 +364,12 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// Draw Shadow Map
 	///////////////////////////////////////////////////////////////////////////
+	if(usePolygonOffset)
+	{
+		// Try to fix the "surface acne" a bit.
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(polygonOffset_factor, polygonOffset_units);
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFB.framebufferId);
 	glViewport(0, 0, shadowMapResolution, shadowMapResolution);
 	glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
@@ -371,6 +377,10 @@ void display(void)
 	drawScene(simpleShaderProgram, lightViewMatrix, lightProjMatrix, lightViewMatrix, lightProjMatrix);
 	labhelper::Material& screen = landingpadModel->m_materials[8];
 	screen.m_emission_texture.gl_id = shadowMapFB.colorTextureTarget;
+	if(usePolygonOffset)
+	{
+		glDisable(GL_POLYGON_OFFSET_FILL);
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// Draw from camera
