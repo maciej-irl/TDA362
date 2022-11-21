@@ -57,11 +57,6 @@ layout(location = 0) out vec4 fragmentColor;
 
 vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 {
-	///////////////////////////////////////////////////////////////////////////
-	// Task 1.2 - Calculate the radiance Li from the light, and the direction
-	//            to the light. If the light is backfacing the triangle,
-	//            return vec3(0);
-	///////////////////////////////////////////////////////////////////////////
 	vec3 wi = normalize(viewSpaceLightPosition - viewSpacePosition);
 
 	if (dot(wi, n) <= 0.0) {
@@ -72,15 +67,7 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 	// Find the incoming light radiance.
 	vec3 li = point_light_intensity_multiplier * point_light_color * 1 / (d * d);
 
-	///////////////////////////////////////////////////////////////////////////
-	// Task 1.3 - Calculate the diffuse term and return that as the result
-	///////////////////////////////////////////////////////////////////////////
 	vec3 diffuse_term = base_color * 1.0 / PI * abs(dot(n, wi)) * li;
-
-	///////////////////////////////////////////////////////////////////////////
-	// Task 2 - Calculate the Torrance Sparrow BRDF and return the light
-	//          reflected from that instead
-	///////////////////////////////////////////////////////////////////////////
 
 	vec3 wh = normalize(wi + wo);
 	float fresnel_term = material_fresnel + (1.0 - material_fresnel) * pow(1.0 - dot(wh, wi), 5.0);
@@ -91,10 +78,6 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 		2.0 * dot(n, wh) * dot(n, wi) / dot(wo, wh)
 	));
 	float brdf = fresnel_term * microfacet_term * masking_term / 4.0 / dot(n, wo) / dot(n, wi);
-
-	///////////////////////////////////////////////////////////////////////////
-	// Task 3 - Make your shader respect the parameters of our material model.
-	///////////////////////////////////////////////////////////////////////////
 
 	vec3 dielectric_term = brdf * dot(n, wi) * li + (1 - fresnel_term) * diffuse_term;
 	vec3 metal_term = brdf * base_color * dot(n, wi) * li;
@@ -121,21 +104,12 @@ vec2 sphereLookup(vec3 dir) {
 
 vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 {
-	///////////////////////////////////////////////////////////////////////////
-	// Task 5 - Lookup the irradiance from the irradiance map and calculate
-	//          the diffuse reflection
-	///////////////////////////////////////////////////////////////////////////
-
 	// Calculate the world-space direction from the camera to that position
 	vec3 dir = vec3(viewInverse * vec4(n, 0.0));
 	vec2 indirect_lookup = sphereLookup(vec3(viewInverse * vec4(n, 0.0)));
 	vec3 indirect_illum = environment_multiplier * texture(irradianceMap, indirect_lookup).rgb;
 	vec3 diffuse_term = base_color * (1.0 / PI) * indirect_illum;
 
-	///////////////////////////////////////////////////////////////////////////
-	// Task 6 - Look up in the reflection map from the perfect specular
-	//          direction and calculate the dielectric and metal terms.
-	///////////////////////////////////////////////////////////////////////////
 	vec3 wi = vec3(viewInverse * vec4(reflect(-wo, n), 0.0));
 	vec3 wh = normalize(wi + wo);
 
