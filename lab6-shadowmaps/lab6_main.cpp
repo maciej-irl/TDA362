@@ -280,7 +280,7 @@ void drawScene(GLuint currentShaderProgram,
 	labhelper::setUniformSlow(currentShaderProgram, "useSpotLight", useSpotLight);
 	labhelper::setUniformSlow(currentShaderProgram, "useSoftFalloff", useSoftFalloff);
 
-	// Shadow map.
+	// Shadow map setup.
 	mat4 lightMatrix = translate(vec3(0.5f))   // Change from [-.5, .5] to [0, 1]
 	                   * scale(vec3(0.5f))     // Change from [-1, 1] to [-.5, .5]
 	                   * lightProjectionMatrix // Light Space to Light Clip Space
@@ -288,8 +288,8 @@ void drawScene(GLuint currentShaderProgram,
 	                   * inverse(viewMatrix);  // View Space to World Space
 	labhelper::setUniformSlow(currentShaderProgram, "lightMatrix", lightMatrix);
 	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, shadowMapFB.colorTextureTarget);
-	labhelper::setUniformSlow(currentShaderProgram, "shadowMapTex", 0);
+	glBindTexture(GL_TEXTURE_2D, shadowMapFB.depthBuffer);
+	labhelper::setUniformSlow(currentShaderProgram, "shadowMapTex", 10);
 
 	// Environment
 	labhelper::setUniformSlow(currentShaderProgram, "environment_multiplier", environment_multiplier);
@@ -378,6 +378,11 @@ void display(void)
 		vec4 border(shadowMapClampBorderShadowed ? 0.f : 1.f);
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &border.x);
 	}
+	// This line is to avoid some warnings from OpenGL for having the shadowmap attached to texture unit 0
+	// when using a shader that samples from that texture with a sampler2D instead of a shadow sampler.
+	// It is never actually sampled, but just having it set there generates the warning in some systems.
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// Draw Shadow Map
