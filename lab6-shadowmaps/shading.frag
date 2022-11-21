@@ -30,7 +30,7 @@ uniform float environment_multiplier;
 ///////////////////////////////////////////////////////////////////////////////
 uniform vec3 point_light_color = vec3(1.0, 1.0, 1.0);
 uniform float point_light_intensity_multiplier = 50.0;
-uniform sampler2D shadowMapTex;
+uniform sampler2DShadow shadowMapTex;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constants
@@ -140,8 +140,7 @@ void main()
 	vec3 n = normalize(viewSpaceNormal);
 
 	// Shadow map
-	float depth = texture(shadowMapTex, shadowMapCoord.xy / shadowMapCoord.w).x;
-	float visibility = (depth >= (shadowMapCoord.z / shadowMapCoord.w)) ? 1.0 : 0.0;
+	float visibility = textureProj(shadowMapTex, shadowMapCoord);
 	
 	// Spotlight logic
 	if (useSpotLight) {
