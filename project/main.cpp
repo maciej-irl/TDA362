@@ -23,8 +23,6 @@ using namespace glm;
 #include "fbo.h"
 
 
-
-
 using std::min;
 using std::max;
 
@@ -65,15 +63,12 @@ vec3 point_light_color = vec3(1.f, 1.f, 1.f);
 float point_light_intensity_multiplier = 10000.0f;
 
 
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Camera parameters.
 ///////////////////////////////////////////////////////////////////////////////
 vec3 cameraPosition(-70.0f, 50.0f, 70.0f);
 vec3 cameraDirection = normalize(vec3(0.0f) - cameraPosition);
-float cameraSpeed = 10.f;
+float cameraSpeed = 30.f;
 
 vec3 worldUp(0.0f, 1.0f, 0.0f);
 
@@ -114,7 +109,6 @@ void loadShaders(bool is_reload)
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /// This function is called once at the start of the program and never again
 ///////////////////////////////////////////////////////////////////////////////
@@ -150,12 +144,8 @@ void initialize()
 	reflectionMap = labhelper::loadHdrMipmapTexture(filenames);
 
 
-
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
 	glEnable(GL_CULL_FACE);  // enables backface culling
-
-
-
 }
 
 void debugDrawLight(const glm::mat4& viewMatrix,
@@ -177,6 +167,7 @@ void drawBackground(const mat4& viewMatrix, const mat4& projectionMatrix)
 	labhelper::setUniformSlow(backgroundProgram, "environment_multiplier", environment_multiplier);
 	labhelper::setUniformSlow(backgroundProgram, "inv_PV", inverse(projectionMatrix * viewMatrix));
 	labhelper::setUniformSlow(backgroundProgram, "camera_pos", cameraPosition);
+	labhelper::setUniformSlow(backgroundProgram, "environmentMap", 6);
 	labhelper::drawFullScreenQuad();
 }
 
@@ -238,7 +229,7 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	{
 		int w, h;
-		SDL_GetWindowSize(g_window, &w, &h);
+		SDL_GL_GetDrawableSize(g_window, &w, &h);
 		if(w != windowWidth || h != windowHeight)
 		{
 			windowWidth = w;
@@ -261,14 +252,17 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// Bind the environment map(s) to unused texture units
 	///////////////////////////////////////////////////////////////////////////
+	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, irradianceMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "irradianceMap", 7);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, reflectionMap);
+	labhelper::setUniformSlowIfValid(shaderProgram, "reflectionMap", 8);
 	glActiveTexture(GL_TEXTURE0);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -282,9 +276,6 @@ void display(void)
 	drawBackground(viewMatrix, projMatrix);
 	drawScene(shaderProgram, viewMatrix, projMatrix, lightViewMatrix, lightProjMatrix);
 	debugDrawLight(viewMatrix, projMatrix, vec3(lightPosition));
-
-
-
 }
 
 

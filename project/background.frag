@@ -1,10 +1,10 @@
-#version 420
+#version 410
 
 // required by GLSL spec Sect 4.5.3 (though nvidia does not, amd does)
 precision highp float;
 
-layout(location = 0) out vec4 fragmentColor;
-layout(binding = 6) uniform sampler2D environmentMap;
+out vec4 fragmentColor;
+uniform sampler2D environmentMap;
 in vec2 texCoord;
 uniform mat4 inv_PV;
 uniform vec3 camera_pos;

@@ -3,7 +3,7 @@
 #include <labhelper.h>
 
 FboInfo::FboInfo(int numberOfColorBuffers)
-    : isComplete(false), framebufferId(0), depthBuffer(0), width(0), height(0)
+    : framebufferId(UINT32_MAX), depthBuffer(UINT32_MAX), width(0), height(0), isComplete(false)
 {
 	colorTextureTargets.resize(numberOfColorBuffers, 0);
 };
