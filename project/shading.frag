@@ -163,6 +163,7 @@ void main()
 
 	vec3 shading = direct_illumination_term + indirect_illumination_term + emission_term;
 
+	// fragmentColor = vec4(viewSpaceNormal, 1.0);
 	fragmentColor = vec4(shading, 1.0);
 	return;
 }

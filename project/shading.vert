@@ -25,6 +25,7 @@ void main()
 {
 	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
 	texCoord = texCoordIn;
+	// viewSpaceNormal = normalIn;
 	viewSpaceNormal = (normalMatrix * vec4(normalIn, 0.0)).xyz;
 	viewSpacePosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
 

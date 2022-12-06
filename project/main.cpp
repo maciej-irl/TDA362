@@ -91,7 +91,12 @@ float shipSpeed = 50;
 ///////////////////////////////////////////////////////////////////////////////
 HeightField terrain;
 mat4 terrainModelMatrix;
-int terainResolution = 3000 / 2; // Based on the height map resolution.
+int terrainResolution = 1500; // Based on half of height map resolution.
+float terrainScale = 0.1;
+// And so the good book said:
+// "Water shall have fresnel F0 of 0.02 and stone that of 0.035–0.056".
+float terrainShininess = 50.0;
+float terrainFresnel = 0.03;
 bool g_showWireframe = false;
 
 void loadShaders(bool is_reload)
@@ -161,7 +166,7 @@ void initialize()
 	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
 	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
 	terrain.loadShininess("../scenes/nlsFinland/L3123F_shininess.png");
-	terrain.generateMesh(terainResolution);
+	terrain.generateMesh(terrainResolution);
 	terrainModelMatrix = translate(-10.0f * worldUp) * scale(vec3(5000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
@@ -250,15 +255,15 @@ void drawTerrain(GLuint program,
 
 	glUseProgram(program);
 
+	// Configuration
+	labhelper::setUniformSlow(program, "tesselation", terrainResolution);
+	labhelper::setUniformSlow(program, "scale", terrainScale);
+
 	// Material parameters.
 	// Both water and land are dielectrics.
 	labhelper::setUniformSlow(program, "material_metalness", 0.0f);
-	// And so the good book said: "Water shall have fresnel of 0.02 and stone
-	// that of 0.035–0.056". So 0.025 was used and it was good.
-	// Picked to look good.
-	// labhelper::setUniformSlow(program, "material_fresnel", 0.025f);
-	// This controls the maximum shininess.
-	labhelper::setUniformSlow(program, "material_shininess", 100.0f);
+	labhelper::setUniformSlow(program, "material_fresnel", terrainFresnel);
+	labhelper::setUniformSlow(program, "material_shininess", terrainShininess);
 
 	// Fragment shader parameters.
 	vec4 viewSpaceLightPosition = viewMatrix * vec4(lightPosition, 1.0f);
@@ -299,7 +304,7 @@ void drawTerrain(GLuint program,
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
 	                          projectionMatrix * viewMatrix * terrainModelMatrix);
 	labhelper::setUniformSlow(program, "modelViewMatrix", viewMatrix * terrainModelMatrix);
-	labhelper::setUniformSlow(program, "normalMatrix", inverse(transpose(viewMatrix * terrainModelMatrix)));
+	labhelper::setUniformSlow(program, "normalMatrix", inverse(transpose(viewMatrix * fighterModelMatrix)));
 	terrain.submitTriangles();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -328,9 +333,9 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// Re-tesselate the terrain if we changed the resolution.
 	///////////////////////////////////////////////////////////////////////////
-	if(terrain.m_meshResolution != terainResolution)
+	if(terrain.m_meshResolution != terrainResolution)
 	{
-		terrain.generateMesh(terainResolution);
+		terrain.generateMesh(terrainResolution);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -485,7 +490,10 @@ void gui()
 	// ----------------- Set variables --------------------------
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
-	ImGui::SliderInt("Tesselation", &terainResolution, 0, 3000);
+	ImGui::SliderInt("Tesselation", &terrainResolution, 1, 1500);
+	ImGui::SliderFloat("Terrain scale", &terrainScale, 0.0f, 1.0f);
+	ImGui::SliderFloat("Terrain shininess", &terrainShininess, 0.0f, 100.0f);
+	ImGui::SliderFloat("Terrain fresnel", &terrainFresnel, 0.0f, 1.0f);
 	ImGui::Checkbox("Show wireframe", &g_showWireframe);
 	// ----------------------------------------------------------
 }

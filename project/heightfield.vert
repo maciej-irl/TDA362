@@ -4,7 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 layout(location = 0) in vec2 position;
 layout(location = 2) in vec2 texCoordIn;
-uniform sampler2D heightField;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Input uniform variables
@@ -13,6 +12,9 @@ uniform sampler2D heightField;
 uniform mat4 normalMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat4 modelViewProjectionMatrix;
+uniform sampler2D heightField;
+uniform int tesselation;
+uniform float scale;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Output to fragment shader
@@ -23,17 +25,23 @@ out vec3 viewSpaceNormal;
 
 void main()
 {
-	float delta = 0.01;
-	float scale = 0.1;
 	float height = texture(heightField, texCoordIn).r * scale;
-	float du = (texture(heightField, texCoordIn + vec2(delta, 0)).r * scale - height) / delta;
-	float dv = (texture(heightField, texCoordIn + vec2(0, delta)).r * scale - height) / delta;
 	vec3 mappedPos = vec3(position.x, height, position.y);
-	vec3 normalIn = normalize(vec3(du, 1, -dv));
+	
+	// Estimate normal.
+	float delta = 1.0 / tesselation;
+	float du = texture(heightField, texCoordIn + delta*vec2(-1,0)).r
+		     - texture(heightField, texCoordIn + delta*vec2(1,0)).r;
+	float dv = texture(heightField, texCoordIn + delta*vec2(0,-1)).r
+		     - texture(heightField, texCoordIn + delta*vec2(0,1)).r;
+	vec3 normalIn = normalize(vec3(
+		scale * du / (delta * 2),
+		1.0,
+		scale * dv / (delta * 2)));
 
 	gl_Position = modelViewProjectionMatrix * vec4(mappedPos, 1.0);
-	// texCoord = 1.0 - texCoordIn;
 	texCoord = texCoordIn;
 	viewSpaceNormal = (normalMatrix * vec4(normalIn, 0.0)).xyz;
+	// viewSpaceNormal = normalIn;
 	viewSpacePosition = (modelViewMatrix * vec4(mappedPos, 1.0)).xyz;
 }

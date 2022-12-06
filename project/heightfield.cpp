@@ -49,7 +49,7 @@ void HeightField::loadPlainTexture(GLuint* texid, const std::string& path)
 	             data); // just one component (float)
 	stbi_image_free(data);
 
-	std::cout << "Successfully loaded heigh field texture: " << heigtFieldPath << ".\n";
+	std::cout << "Successfully loaded heigh field texture: " << path << ".\n";
 }
 
 void HeightField::loadHeightField(const std::string& path)
