@@ -70,7 +70,7 @@ float point_light_intensity_multiplier = 10000.0f;
 ///////////////////////////////////////////////////////////////////////////////
 vec3 cameraPosition(-70.0f, 50.0f, 70.0f);
 vec3 cameraDirection = normalize(vec3(0.0f) - cameraPosition);
-float cameraSpeed = 30.f;
+float cameraSpeed = 100.f;
 
 vec3 worldUp(0.0f, 1.0f, 0.0f);
 
@@ -91,7 +91,7 @@ float shipSpeed = 50;
 ///////////////////////////////////////////////////////////////////////////////
 HeightField terrain;
 mat4 terrainModelMatrix;
-int terainResolution = 2048;
+int terainResolution = 3000 / 2; // Based on the height map resolution.
 bool g_showWireframe = false;
 
 void loadShaders(bool is_reload)
@@ -161,10 +161,10 @@ void initialize()
 	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
 	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
 	terrain.generateMesh(terainResolution);
-	terrainModelMatrix = translate(-100.0f * worldUp) * scale(vec3(1000));
+	terrainModelMatrix = translate(-10.0f * worldUp) * scale(vec3(10000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
-	                         // glEnable(GL_CULL_FACE);  // enables backface culling
+	glEnable(GL_CULL_FACE);  // enables backface culling
 }
 
 void debugDrawLight(const glm::mat4& viewMatrix,
@@ -255,8 +255,8 @@ void drawTerrain(GLuint program,
 	labhelper::setUniformSlow(program, "heightField", 1);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_diffuse);
-	labhelper::setUniformSlow(program, "emission_texture", 2);
-	labhelper::setUniformSlow(program, "has_emission_texture", 1);
+	labhelper::setUniformSlow(program, "color_texture", 2);
+	labhelper::setUniformSlow(program, "has_color_texture", 1);
 	glActiveTexture(GL_TEXTURE0);
 
 	// Fragment shader parameters.
@@ -322,7 +322,7 @@ void display(void)
 	///////////////////////////////////////////////////////////////////////////
 	// setup matrices
 	///////////////////////////////////////////////////////////////////////////
-	mat4 projMatrix = perspective(radians(45.0f), float(windowWidth) / float(windowHeight), 5.0f, 2000.0f);
+	mat4 projMatrix = perspective(radians(45.0f), float(windowWidth) / float(windowHeight), 5.0f, 20000.0f);
 	mat4 viewMatrix = lookAt(cameraPosition, cameraPosition + cameraDirection, worldUp);
 
 	vec4 lightStartPosition = vec4(40.0f, 40.0f, 0.0f, 1.0f);
@@ -472,7 +472,7 @@ void gui()
 	// ----------------- Set variables --------------------------
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
-	ImGui::SliderInt("Tesselation", &terainResolution, 1, 1000);
+	ImGui::SliderInt("Tesselation", &terainResolution, 0, 3000);
 	ImGui::Checkbox("Show wireframe", &g_showWireframe);
 	// ----------------------------------------------------------
 }

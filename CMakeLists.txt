@@ -7,7 +7,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FOR
 
 if(UNIX)
     set(OpenGL_GL_PREFERENCE "GLVND")
-    set(CMAKE_CXX_FLAGS "-Wall -Wno-unused-variable")
+    set(CMAKE_CXX_FLAGS "-Wall -Wno-unused-variable -O3")
 endif(UNIX)
 
 # For windows we use our bundled binaries.
