@@ -16,6 +16,8 @@ uniform int has_color_texture = 0;
 uniform sampler2D color_texture;
 uniform int has_emission_texture = 0;
 uniform sampler2D emission_texture;
+uniform int has_shininess_texture = 0;
+uniform sampler2D shininess_texture;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Environment
@@ -56,7 +58,7 @@ layout(location = 0) out vec4 fragmentColor;
 
 
 
-vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
+vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color, float shininess)
 {
 	vec3 wi = normalize(viewSpaceLightPosition - viewSpacePosition);
 
@@ -73,7 +75,7 @@ vec3 calculateDirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 	vec3 wh = normalize(wi + wo);
 	float fresnel_term = material_fresnel + (1.0 - material_fresnel) * pow(1.0 - dot(wh, wi), 5.0);
 	// N.B. Make sure we are not taking a power of a negative by clamping.
-	float microfacet_term = (material_shininess + 2.0) / (2.0 * PI) * pow(max(0.001, dot(n, wh)), material_shininess);
+	float microfacet_term = (shininess + 2.0) / (2.0 * PI) * pow(max(0.001, dot(n, wh)), shininess);
 	float masking_term = min(1.0, min(
 		2.0 * dot(n, wh) * dot(n, wo) / dot(wo, wh),
 		2.0 * dot(n, wh) * dot(n, wi) / dot(wo, wh)
@@ -103,7 +105,7 @@ vec2 sphereLookup(vec3 dir) {
 	return lookup;
 }
 
-vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color)
+vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color, float shininess)
 {
 	// Calculate the world-space direction from the camera to that position
 	vec3 dir = vec3(viewInverse * vec4(n, 0.0));
@@ -116,7 +118,7 @@ vec3 calculateIndirectIllumination(vec3 wo, vec3 n, vec3 base_color)
 
 	vec2 reflection_lookup = sphereLookup(wi);
 	// // Convert to roughness because we need a parameter that varies linearly to choose a mipmap hierarchy.
-	float roughness = sqrt(sqrt(2 / (material_shininess + 2.0)));
+	float roughness = sqrt(sqrt(2 / (shininess + 2.0)));
 	vec3 li = environment_multiplier * textureLod(reflectionMap, reflection_lookup, roughness * 7.0).rgb;
 
 	float fresnel_term = material_fresnel + (1.0 - material_fresnel) * pow(1.0 - dot(wh, wi), 5.0);
@@ -139,11 +141,16 @@ void main()
 		base_color = base_color * texture(color_texture, texCoord).rgb;
 	}
 
+	float shininess = material_shininess;
+	if (has_shininess_texture == 1) {
+		shininess = texture(shininess_texture, texCoord).r * material_shininess;
+	}
+
 	// Direct illumination
-	vec3 direct_illumination_term = visibility * calculateIndirectIllumination(wo, n, base_color);
+	vec3 direct_illumination_term = visibility * calculateDirectIllumination(wo, n, base_color, shininess);
 
 	// Indirect illumination
-	vec3 indirect_illumination_term = calculateDirectIllumination(wo, n, base_color);
+	vec3 indirect_illumination_term = calculateIndirectIllumination(wo, n, base_color, shininess);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Add emissive term. If emissive texture exists, sample this term.

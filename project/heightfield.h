@@ -7,10 +7,9 @@ public:
 	// Triangles edges per quad side
 	int m_meshResolution;
 	// Textures.
-	std::string m_heightFieldPath;
-	std::string m_diffuseTexturePath;
 	GLuint m_texid_hf;
 	GLuint m_texid_diffuse;
+	GLuint m_texid_shininess;
 	// Our VAO and its buffers.
 	GLuint m_vao;
 	GLuint m_positionBuffer;
@@ -20,15 +19,11 @@ public:
 
 	HeightField(void);
 
-	/// Load height field
-	void loadHeightField(const std::string& heigtFieldPath);
-
-	/// Load diffuse map
+	void loadPlainTexture(GLuint* texid, const std::string& path);
+	void loadHeightField(const std::string& path);
+	void loadShininess(const std::string& path);
 	void loadDiffuseTexture(const std::string& diffusePath);
 
-	/// Generate mesh
 	void generateMesh(int tesselation);
-
-	/// Render height map
 	void submitTriangles(void);
 };

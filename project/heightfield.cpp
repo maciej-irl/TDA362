@@ -13,10 +13,9 @@ using std::string;
 
 HeightField::HeightField(void)
     : m_meshResolution(0)
-    , m_heightFieldPath("")
-    , m_diffuseTexturePath("")
     , m_texid_hf(UINT32_MAX)
     , m_texid_diffuse(UINT32_MAX)
+    , m_texid_shininess(UINT32_MAX)
     , m_vao(UINT32_MAX)
     , m_positionBuffer(UINT32_MAX)
     , m_uvBuffer(UINT32_MAX)
@@ -25,22 +24,22 @@ HeightField::HeightField(void)
 {
 }
 
-void HeightField::loadHeightField(const std::string& heigtFieldPath)
+void HeightField::loadPlainTexture(GLuint* texid, const std::string& path)
 {
 	int width, height, components;
 	stbi_set_flip_vertically_on_load(true);
-	float* data = stbi_loadf(heigtFieldPath.c_str(), &width, &height, &components, 1);
+	float* data = stbi_loadf(path.c_str(), &width, &height, &components, 1);
 	if(data == nullptr)
 	{
-		std::cout << "Failed to load image: " << heigtFieldPath << ".\n";
+		std::cout << "Failed to load image: " << path << ".\n";
 		return;
 	}
 
-	if(m_texid_hf == UINT32_MAX)
+	if(*texid == UINT32_MAX)
 	{
-		glGenTextures(1, &m_texid_hf);
+		glGenTextures(1, texid);
 	}
-	glBindTexture(GL_TEXTURE_2D, m_texid_hf);
+	glBindTexture(GL_TEXTURE_2D, *texid);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -48,9 +47,21 @@ void HeightField::loadHeightField(const std::string& heigtFieldPath)
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT,
 	             data); // just one component (float)
+	stbi_image_free(data);
 
-	m_heightFieldPath = heigtFieldPath;
 	std::cout << "Successfully loaded heigh field texture: " << heigtFieldPath << ".\n";
+}
+
+void HeightField::loadHeightField(const std::string& path)
+{
+	loadPlainTexture(&m_texid_hf, path);
+	CHECK_GL_ERROR();
+}
+
+void HeightField::loadShininess(const std::string& path)
+{
+	loadPlainTexture(&m_texid_shininess, path);
+	CHECK_GL_ERROR();
 }
 
 void HeightField::loadDiffuseTexture(const std::string& diffusePath)
@@ -78,6 +89,7 @@ void HeightField::loadDiffuseTexture(const std::string& diffusePath)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // plain RGB
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	CHECK_GL_ERROR();
 	std::cout << "Successfully loaded diffuse texture: " << diffusePath << ".\n";
 }
 

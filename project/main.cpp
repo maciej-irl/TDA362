@@ -70,7 +70,7 @@ float point_light_intensity_multiplier = 10000.0f;
 ///////////////////////////////////////////////////////////////////////////////
 vec3 cameraPosition(-70.0f, 50.0f, 70.0f);
 vec3 cameraDirection = normalize(vec3(0.0f) - cameraPosition);
-float cameraSpeed = 100.f;
+float cameraSpeed = 1000.f;
 
 vec3 worldUp(0.0f, 1.0f, 0.0f);
 
@@ -160,8 +160,9 @@ void initialize()
 
 	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
 	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
+	terrain.loadShininess("../scenes/nlsFinland/L3123F_shininess.png");
 	terrain.generateMesh(terainResolution);
-	terrainModelMatrix = translate(-10.0f * worldUp) * scale(vec3(10000));
+	terrainModelMatrix = translate(-10.0f * worldUp) * scale(vec3(5000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
 	glEnable(GL_CULL_FACE);  // enables backface culling
@@ -247,17 +248,17 @@ void drawTerrain(GLuint program,
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	glUseProgram(heightFieldProgram);
+	glUseProgram(program);
 
-	// Configure textures.
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_hf);
-	labhelper::setUniformSlow(program, "heightField", 1);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_diffuse);
-	labhelper::setUniformSlow(program, "color_texture", 2);
-	labhelper::setUniformSlow(program, "has_color_texture", 1);
-	glActiveTexture(GL_TEXTURE0);
+	// Material parameters.
+	// Both water and land are dielectrics.
+	labhelper::setUniformSlow(program, "material_metalness", 0.0f);
+	// And so the good book said: "Water shall have fresnel of 0.02 and stone
+	// that of 0.035–0.056". So 0.025 was used and it was good.
+	// Picked to look good.
+	// labhelper::setUniformSlow(program, "material_fresnel", 0.025f);
+	// This controls the maximum shininess.
+	labhelper::setUniformSlow(program, "material_shininess", 100.0f);
 
 	// Fragment shader parameters.
 	vec4 viewSpaceLightPosition = viewMatrix * vec4(lightPosition, 1.0f);
@@ -269,17 +270,30 @@ void drawTerrain(GLuint program,
 	labhelper::setUniformSlow(program, "environment_multiplier", environment_multiplier);
 	labhelper::setUniformSlow(program, "viewInverse", inverse(viewMatrix));
 
-	// Environment uniforms.
+	// Configure textures.
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_hf);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_diffuse);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_shininess);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
-	labhelper::setUniformSlowIfValid(program, "environmentMap", 6);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, irradianceMap);
-	labhelper::setUniformSlowIfValid(program, "irradianceMap", 7);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, reflectionMap);
-	labhelper::setUniformSlowIfValid(program, "reflectionMap", 8);
 	glActiveTexture(GL_TEXTURE0);
+
+	labhelper::setUniformSlow(program, "heightField", 1);
+	labhelper::setUniformSlow(program, "color_texture", 2);
+	labhelper::setUniformSlow(program, "shininess_texture", 3);
+	labhelper::setUniformSlow(program, "environmentMap", 6);
+	labhelper::setUniformSlow(program, "irradianceMap", 7);
+	labhelper::setUniformSlow(program, "reflectionMap", 8);
+
+	labhelper::setUniformSlow(program, "has_color_texture", 1);
+	labhelper::setUniformSlow(program, "has_shininess_texture", 1);
 
 	// Set matrices.
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
@@ -336,14 +350,13 @@ void display(void)
 	glUseProgram(shaderProgram);
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, environmentMap);
-	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, irradianceMap);
-	labhelper::setUniformSlowIfValid(shaderProgram, "irradianceMap", 7);
 	glActiveTexture(GL_TEXTURE8);
 	glBindTexture(GL_TEXTURE_2D, reflectionMap);
 	labhelper::setUniformSlowIfValid(shaderProgram, "reflectionMap", 8);
-	glActiveTexture(GL_TEXTURE0);
+	labhelper::setUniformSlowIfValid(shaderProgram, "environmentMap", 6);
+	labhelper::setUniformSlowIfValid(shaderProgram, "irradianceMap", 7);
 
 
 	///////////////////////////////////////////////////////////////////////////
