@@ -21,6 +21,7 @@ using namespace glm;
 #include <Model.h>
 #include "hdr.h"
 #include "fbo.h"
+#include "heightfield.h"
 
 
 using std::min;
@@ -84,6 +85,11 @@ mat4 fighterModelMatrix;
 
 float shipSpeed = 50;
 
+///////////////////////////////////////////////////////////////////////////////
+// Height field
+///////////////////////////////////////////////////////////////////////////////
+HeightField terrain;
+int terainResolution = 4;
 
 void loadShaders(bool is_reload)
 {
@@ -143,6 +149,9 @@ void initialize()
 	irradianceMap = labhelper::loadHdrTexture("../scenes/envmaps/" + envmap_base_name + "_irradiance.hdr");
 	reflectionMap = labhelper::loadHdrMipmapTexture(filenames);
 
+	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
+	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
+	terrain.generateMesh(terainResolution);
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
 	glEnable(GL_CULL_FACE);  // enables backface culling
@@ -237,6 +246,13 @@ void display(void)
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+	// Re-tesselate the terrain if we changed the resolution.
+	///////////////////////////////////////////////////////////////////////////
+	if(terrain.m_meshResolution != terainResolution)
+	{
+		terrain.generateMesh(terainResolution);
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// setup matrices

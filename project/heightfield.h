@@ -4,16 +4,19 @@
 class HeightField
 {
 public:
-	int m_meshResolution; // triangles edges per quad side
+	// Triangles edges per quad side
+	int m_meshResolution;
+	// Textures.
+	std::string m_heightFieldPath;
+	std::string m_diffuseTexturePath;
 	GLuint m_texid_hf;
 	GLuint m_texid_diffuse;
+	// Our VAO and its buffers.
 	GLuint m_vao;
 	GLuint m_positionBuffer;
 	GLuint m_uvBuffer;
 	GLuint m_indexBuffer;
 	GLuint m_numIndices;
-	std::string m_heightFieldPath;
-	std::string m_diffuseTexturePath;
 
 	HeightField(void);
 
