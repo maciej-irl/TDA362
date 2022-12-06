@@ -92,7 +92,7 @@ float shipSpeed = 50;
 HeightField terrain;
 mat4 terrainModelMatrix;
 int terainResolution = 2048;
-bool g_showWireframe = true;
+bool g_showWireframe = false;
 
 void loadShaders(bool is_reload)
 {
@@ -116,8 +116,7 @@ void loadShaders(bool is_reload)
 		shaderProgram = shader;
 	}
 
-	shader = labhelper::loadShaderProgram("../project/heightfield.vert", "../project/heightfield.frag",
-	                                      is_reload);
+	shader = labhelper::loadShaderProgram("../project/heightfield.vert", "../project/shading.frag", is_reload);
 	if(shader != 0)
 	{
 		heightFieldProgram = shader;
@@ -162,10 +161,10 @@ void initialize()
 	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
 	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
 	terrain.generateMesh(terainResolution);
-	terrainModelMatrix = scale(vec3(1000));
+	terrainModelMatrix = translate(-100.0f * worldUp) * scale(vec3(1000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
-	glEnable(GL_CULL_FACE);  // enables backface culling
+	                         // glEnable(GL_CULL_FACE);  // enables backface culling
 }
 
 void debugDrawLight(const glm::mat4& viewMatrix,
@@ -254,6 +253,33 @@ void drawTerrain(GLuint program,
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_hf);
 	labhelper::setUniformSlow(program, "heightField", 1);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_diffuse);
+	labhelper::setUniformSlow(program, "emission_texture", 2);
+	labhelper::setUniformSlow(program, "has_emission_texture", 1);
+	glActiveTexture(GL_TEXTURE0);
+
+	// Fragment shader parameters.
+	vec4 viewSpaceLightPosition = viewMatrix * vec4(lightPosition, 1.0f);
+	labhelper::setUniformSlow(program, "point_light_color", point_light_color);
+	labhelper::setUniformSlow(program, "point_light_intensity_multiplier", point_light_intensity_multiplier);
+	labhelper::setUniformSlow(program, "viewSpaceLightPosition", vec3(viewSpaceLightPosition));
+	labhelper::setUniformSlow(program, "viewSpaceLightDir",
+	                          normalize(vec3(viewMatrix * vec4(-lightPosition, 0.0f))));
+	labhelper::setUniformSlow(program, "environment_multiplier", environment_multiplier);
+	labhelper::setUniformSlow(program, "viewInverse", inverse(viewMatrix));
+
+	// Environment uniforms.
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, environmentMap);
+	labhelper::setUniformSlowIfValid(program, "environmentMap", 6);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, irradianceMap);
+	labhelper::setUniformSlowIfValid(program, "irradianceMap", 7);
+	glActiveTexture(GL_TEXTURE8);
+	glBindTexture(GL_TEXTURE_2D, reflectionMap);
+	labhelper::setUniformSlowIfValid(program, "reflectionMap", 8);
+	glActiveTexture(GL_TEXTURE0);
 
 	// Set matrices.
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
