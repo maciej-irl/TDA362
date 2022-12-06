@@ -1,8 +1,8 @@
-#version 420
+#version 410
 ///////////////////////////////////////////////////////////////////////////////
 // Input vertex attributes
 ///////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in vec3 position;
+layout(location = 0) in vec2 position;
 layout(location = 2) in vec2 texCoordIn;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,6 @@ out vec3 viewSpaceNormal;
 
 void main()
 {
-	gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);
+	gl_Position = modelViewProjectionMatrix * vec4(position.x, 0.0, position.y, 1.0);
 	texCoord = texCoordIn;
 }

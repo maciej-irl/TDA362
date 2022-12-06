@@ -110,53 +110,52 @@ void HeightField::generateMesh(int tesselation)
 
 	const int n = tesselation;
 	const int vertexCount = (n + 1) * (n + 1);
-	std::vector<vec2> posData, uvData;
-	std::vector<vec3> indexData;
 
+	// Set position and UV coordinate data.
+	std::vector<vec2> posData, uvData;
 	posData.reserve(vertexCount);
 	uvData.reserve(vertexCount);
-	indexData.reserve(tesselation * n * 2 * 3);
 
-	int v = 0;
 	for(int y = 0; y <= n; ++y)
 	{
 		const float y_pos = y / (float)n;
 		for(int x = 0; x <= n; ++x)
 		{
 			const float x_pos = x / (float)n;
-			// Set position and UV coordinate data.
 			posData.emplace_back(-1.0 + 2.0 * x_pos, -1.0 + 2.0 * y_pos);
 			uvData.emplace_back(x_pos, y_pos);
-			// Set triangle A and B indices.
-			indexData.emplace_back(v, v + 1, v + n + 1);
-			indexData.emplace_back(v + 1, v + n + 2, v + n + 1);
-			++v;
 		}
 	}
+
+	// Set triangle A and B indices.
+	std::vector<int> indexData;
+	indexData.reserve(tesselation * n * 2 * 3);
+
+	for(int y = 0; y < n; ++y)
+	{
+		for(int x = 0; x < n; ++x)
+		{
+			const int v = y * (n + 1) + x;
+			indexData.push_back(v);
+			indexData.push_back(v + 1);
+			indexData.push_back(v + n + 1);
+			indexData.push_back(v + 1);
+			indexData.push_back(v + n + 2);
+			indexData.push_back(v + n + 1);
+		}
+	}
+	m_numIndices = indexData.size();
 
 	// Push everything to the GPU.
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 	CHECK_GL_ERROR();
 
-	if(m_indexBuffer == UINT32_MAX)
-		glGenBuffers(1, &m_indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(vec2), indexData.data(), GL_STATIC_DRAW);
-
-	if(m_positionBuffer == UINT32_MAX)
-		glGenBuffers(1, &m_positionBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, posData.size() * sizeof(vec2), posData.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, nullptr);
-	glEnableVertexAttribArray(0);
-
-	if(m_uvBuffer == UINT32_MAX)
-		glGenBuffers(1, &m_uvBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvData.size() * sizeof(vec3), uvData.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, nullptr);
-	glEnableVertexAttribArray(1);
+	m_indexBuffer = labhelper::createAddIndexBuffer(m_vao, indexData.data(), indexData.size() * sizeof(int));
+	m_positionBuffer = labhelper::createAddAttribBuffer(m_vao, posData.data(), posData.size() * sizeof(vec2),
+	                                                    /*attributeIndex=*/0, /*attribueSize=*/2, GL_FLOAT);
+	m_uvBuffer = labhelper::createAddAttribBuffer(m_vao, uvData.data(), uvData.size() * sizeof(vec2),
+	                                              /*attributeIndex=*/2, /*attribueSize=*/2, GL_FLOAT);
 
 	CHECK_GL_ERROR();
 }
@@ -168,4 +167,12 @@ void HeightField::submitTriangles(void)
 		std::cout << "No vertex array is generated, cannot draw anything.\n";
 		return;
 	}
+	glBindVertexArray(m_vao);
+	CHECK_GL_ERROR();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+	CHECK_GL_ERROR();
+	glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr);
+	CHECK_GL_ERROR();
+	glBindVertexArray(0);
+	CHECK_GL_ERROR();
 }

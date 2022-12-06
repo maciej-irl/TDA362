@@ -47,6 +47,7 @@ bool g_isMouseDragging = false;
 GLuint shaderProgram;       // Shader for rendering the final image
 GLuint simpleShaderProgram; // Shader used to draw the shadow map
 GLuint backgroundProgram;
+GLuint heightFieldProgram;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Environment
@@ -89,7 +90,9 @@ float shipSpeed = 50;
 // Height field
 ///////////////////////////////////////////////////////////////////////////////
 HeightField terrain;
-int terainResolution = 4;
+mat4 terrainModelMatrix;
+int terainResolution = 3;
+bool g_showWireframe = true;
 
 void loadShaders(bool is_reload)
 {
@@ -111,6 +114,13 @@ void loadShaders(bool is_reload)
 	if(shader != 0)
 	{
 		shaderProgram = shader;
+	}
+
+	shader = labhelper::loadShaderProgram("../project/heightfield.vert", "../project/heightfield.frag",
+	                                      is_reload);
+	if(shader != 0)
+	{
+		heightFieldProgram = shader;
 	}
 }
 
@@ -152,9 +162,10 @@ void initialize()
 	terrain.loadDiffuseTexture("../scenes/nlsFinland/L3123F_downscaled.jpg");
 	terrain.loadHeightField("../scenes/nlsFinland/L3123F.png");
 	terrain.generateMesh(terainResolution);
+	terrainModelMatrix = scale(vec3(1000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
-	glEnable(GL_CULL_FACE);  // enables backface culling
+	                         // glEnable(GL_CULL_FACE);  // enables backface culling
 }
 
 void debugDrawLight(const glm::mat4& viewMatrix,
@@ -226,6 +237,25 @@ void drawScene(GLuint currentShaderProgram,
 	labhelper::render(fighterModel);
 }
 
+void drawTerrain(GLuint program,
+                 const mat4& viewMatrix,
+                 const mat4& projectionMatrix,
+                 const mat4& lightViewMatrix,
+                 const mat4& lightProjectionMatrix)
+{
+	glUseProgram(heightFieldProgram);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
+	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
+	                          projectionMatrix * viewMatrix * terrainModelMatrix);
+	labhelper::setUniformSlow(program, "modelViewMatrix", viewMatrix * terrainModelMatrix);
+	labhelper::setUniformSlow(program, "normalMatrix", inverse(transpose(viewMatrix * terrainModelMatrix)));
+	terrain.submitTriangles();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// This function will be called once per frame, so the code to set up
@@ -291,6 +321,7 @@ void display(void)
 
 	drawBackground(viewMatrix, projMatrix);
 	drawScene(shaderProgram, viewMatrix, projMatrix, lightViewMatrix, lightProjMatrix);
+	drawTerrain(heightFieldProgram, viewMatrix, projMatrix, lightViewMatrix, lightProjMatrix);
 	debugDrawLight(viewMatrix, projMatrix, vec3(lightPosition));
 }
 
@@ -406,6 +437,7 @@ void gui()
 	// ----------------- Set variables --------------------------
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
+	ImGui::SliderInt("Tesselation", &terainResolution, 1, 1000);
 	// ----------------------------------------------------------
 }
 
