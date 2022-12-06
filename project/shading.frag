@@ -50,6 +50,7 @@ in vec3 viewSpacePosition;
 ///////////////////////////////////////////////////////////////////////////////
 uniform mat4 viewInverse;
 uniform vec3 viewSpaceLightPosition;
+uniform bool showNormals;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Output color
@@ -163,7 +164,6 @@ void main()
 
 	vec3 shading = direct_illumination_term + indirect_illumination_term + emission_term;
 
-	// fragmentColor = vec4(viewSpaceNormal, 1.0);
-	fragmentColor = vec4(shading, 1.0);
+	fragmentColor = showNormals ? vec4(n, 1.0) : vec4(shading, 1.0);
 	return;
 }

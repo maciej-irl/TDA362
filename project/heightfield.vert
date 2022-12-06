@@ -34,10 +34,12 @@ void main()
 		     - texture(heightField, texCoordIn + delta*vec2(1,0)).r;
 	float dv = texture(heightField, texCoordIn + delta*vec2(0,-1)).r
 		     - texture(heightField, texCoordIn + delta*vec2(0,1)).r;
+	// Small term to avoid y-only normals that lead to ugly bands of fresnel.
+	float fudge = 0.01;
 	vec3 normalIn = normalize(vec3(
-		scale * du / (delta * 2),
+		fudge + scale * du / (delta * 2),
 		1.0,
-		scale * dv / (delta * 2)));
+		fudge + scale * dv / (delta * 2)));
 
 	gl_Position = modelViewProjectionMatrix * vec4(mappedPos, 1.0);
 	texCoord = texCoordIn;

@@ -98,6 +98,7 @@ float terrainScale = 0.1;
 float terrainShininess = 50.0;
 float terrainFresnel = 0.03;
 bool g_showWireframe = false;
+bool g_showNormals = false;
 
 void loadShaders(bool is_reload)
 {
@@ -207,6 +208,8 @@ void drawScene(GLuint currentShaderProgram,
                const mat4& lightProjectionMatrix)
 {
 	glUseProgram(currentShaderProgram);
+	labhelper::setUniformSlow(currentShaderProgram, "showNormals", g_showNormals);
+
 	// Light source
 	vec4 viewSpaceLightPosition = viewMatrix * vec4(lightPosition, 1.0f);
 	labhelper::setUniformSlow(currentShaderProgram, "point_light_color", point_light_color);
@@ -258,6 +261,7 @@ void drawTerrain(GLuint program,
 	// Configuration
 	labhelper::setUniformSlow(program, "tesselation", terrainResolution);
 	labhelper::setUniformSlow(program, "scale", terrainScale);
+	labhelper::setUniformSlow(program, "showNormals", g_showNormals);
 
 	// Material parameters.
 	// Both water and land are dielectrics.
@@ -304,7 +308,7 @@ void drawTerrain(GLuint program,
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
 	                          projectionMatrix * viewMatrix * terrainModelMatrix);
 	labhelper::setUniformSlow(program, "modelViewMatrix", viewMatrix * terrainModelMatrix);
-	labhelper::setUniformSlow(program, "normalMatrix", inverse(transpose(viewMatrix * fighterModelMatrix)));
+	labhelper::setUniformSlow(program, "normalMatrix", inverse(transpose(viewMatrix * terrainModelMatrix)));
 	terrain.submitTriangles();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -495,6 +499,7 @@ void gui()
 	ImGui::SliderFloat("Terrain shininess", &terrainShininess, 0.0f, 100.0f);
 	ImGui::SliderFloat("Terrain fresnel", &terrainFresnel, 0.0f, 1.0f);
 	ImGui::Checkbox("Show wireframe", &g_showWireframe);
+	ImGui::Checkbox("Show normals", &g_showNormals);
 	// ----------------------------------------------------------
 }
 
