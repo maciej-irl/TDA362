@@ -129,7 +129,7 @@ void HeightField::generateMesh(int tesselation)
 
 	// Set triangle A and B indices.
 	std::vector<int> indexData;
-	indexData.reserve(tesselation * n * 2 * 3);
+	indexData.reserve(n * n * 2 * 3);
 
 	for(int y = 0; y < n; ++y)
 	{

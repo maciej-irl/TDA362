@@ -91,7 +91,7 @@ float shipSpeed = 50;
 ///////////////////////////////////////////////////////////////////////////////
 HeightField terrain;
 mat4 terrainModelMatrix;
-int terainResolution = 3;
+int terainResolution = 2048;
 bool g_showWireframe = true;
 
 void loadShaders(bool is_reload)
@@ -250,6 +250,12 @@ void drawTerrain(GLuint program,
 
 	glUseProgram(heightFieldProgram);
 
+	// Configure textures.
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, terrain.m_texid_hf);
+	labhelper::setUniformSlow(program, "heightField", 1);
+
+	// Set matrices.
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
 	                          projectionMatrix * viewMatrix * terrainModelMatrix);
 	labhelper::setUniformSlow(program, "modelViewMatrix", viewMatrix * terrainModelMatrix);
