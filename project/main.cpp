@@ -165,7 +165,7 @@ void initialize()
 	terrainModelMatrix = scale(vec3(1000));
 
 	glEnable(GL_DEPTH_TEST); // enable Z-buffering
-	                         // glEnable(GL_CULL_FACE);  // enables backface culling
+	glEnable(GL_CULL_FACE);  // enables backface culling
 }
 
 void debugDrawLight(const glm::mat4& viewMatrix,
@@ -243,9 +243,12 @@ void drawTerrain(GLuint program,
                  const mat4& lightViewMatrix,
                  const mat4& lightProjectionMatrix)
 {
-	glUseProgram(heightFieldProgram);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if(g_showWireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 
+	glUseProgram(heightFieldProgram);
 
 	labhelper::setUniformSlow(program, "modelViewProjectionMatrix",
 	                          projectionMatrix * viewMatrix * terrainModelMatrix);
@@ -438,6 +441,7 @@ void gui()
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 	            ImGui::GetIO().Framerate);
 	ImGui::SliderInt("Tesselation", &terainResolution, 1, 1000);
+	ImGui::Checkbox("Show wireframe", &g_showWireframe);
 	// ----------------------------------------------------------
 }
 

@@ -94,19 +94,19 @@ void HeightField::generateMesh(int tesselation)
 	//
 	//       N edges
 	// ┌─────────────────┐
-	// ┌─────┬─────┬─────┐y+1   v+N+1┌─────┐v+N+2
-	// │╲    │     │╲    │           │╲  B │
-	// │ ╲   │     │ ╲   │           │ ╲   │
-	// │  ╲  │ ... │  ╲  │           │  ╲  │
-	// │   ╲ │     │   ╲ │           │   ╲ │
-	// │    ╲│     │    ╲│           │ A  ╲│
-	// └───────────┴─────┘y         v└─────┘v+1
+	// ┌─────┬─────┬─────┐y         v┌─────┐v+1
+	// │╲    │     │╲    │    │      │╲  A │
+	// │ ╲   │     │ ╲   │    │      │ ╲   │
+	// │  ╲  │ ... │  ╲  │    │z+    │  ╲  │
+	// │   ╲ │     │   ╲ │    ▼      │   ╲ │
+	// │    ╲│     │    ╲│           │ B  ╲│
+	// └───────────┴─────┘y+1   V+N+1└─────┘v+N+2
 	// ▲                 ▲
 	// └─y(N + 1)        └─y(N + 1) + N
 	//
 	// Since we use counter-clockwise winding order, we define two triangles:
-	// - A connects v, v+1, v+N+1
-	// - B connects v+1, v+N+2, v+N+1
+	// - A connects v, v+N+2, v+1
+	// - B connects v, v+N+1, v+N+2
 
 	const int n = tesselation;
 	const int vertexCount = (n + 1) * (n + 1);
@@ -136,12 +136,14 @@ void HeightField::generateMesh(int tesselation)
 		for(int x = 0; x < n; ++x)
 		{
 			const int v = y * (n + 1) + x;
+			// Triangle A.
 			indexData.push_back(v);
-			indexData.push_back(v + 1);
-			indexData.push_back(v + n + 1);
-			indexData.push_back(v + 1);
 			indexData.push_back(v + n + 2);
+			indexData.push_back(v + 1);
+			// Triangle B.
+			indexData.push_back(v);
 			indexData.push_back(v + n + 1);
+			indexData.push_back(v + n + 2);
 		}
 	}
 	m_numIndices = indexData.size();
