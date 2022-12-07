@@ -44,6 +44,5 @@ void main()
 	gl_Position = modelViewProjectionMatrix * vec4(mappedPos, 1.0);
 	texCoord = texCoordIn;
 	viewSpaceNormal = (normalMatrix * vec4(normalIn, 0.0)).xyz;
-	// viewSpaceNormal = normalIn;
 	viewSpacePosition = (modelViewMatrix * vec4(mappedPos, 1.0)).xyz;
 }
